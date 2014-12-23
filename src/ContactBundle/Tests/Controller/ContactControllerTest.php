@@ -2,43 +2,57 @@
 
 namespace ContactBundle\Tests\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Liip\FunctionalTestBundle\Test\WebTestCase as WebTestCase;
+use ContactBundle\Tests\Fixtures\Entity\LoadContactData;
 
 class ContactControllerTest extends WebTestCase
 {
-    public function testGetallcontacts()
+    public function setUp()
     {
-        $client = static::createClient();
-
-        $crawler = $client->request('GET', '/contacts');
+        $this->auth = array(
+            'PHP_AUTH_USER' => 'user',
+            'PHP_AUTH_PW' => 'userpass',
+        );
+        $this->client = static::createClient(array(), $this->auth);
     }
 
-    public function testGetsinglecontact()
+    public function testGet()
     {
-        $client = static::createClient();
+         $fixtures = array('ContactBundle\Tests\Fixtures\Entity\LoadContactData');
+         $this->loadFixtures($fixtures);
+         $contact = array_pop(LoadContactData::$contacts);
 
-        $crawler = $client->request('GET', '/contacts/{id}');
+         $route =  $this->getUrl('api_1_get_contact', array('id' => $contact->getId(), '_format' => 'json'));
+         $this->client->request('GET', $route);
+         $response = $this->client->getResponse();
+         $this->assertJsonResponse($response, 200);
+         $content = $response->getContent();
+     
+         $decoded = json_decode($content, true);
+         $this->assertTrue(isset($decoded['id']));
     }
 
-    public function testCreatecontact()
+     protected function assertJsonResponse(
+        $response,
+        $statusCode = 200,
+        $checkValidJson = true,
+        $contentType = 'application/json'
+    )
     {
-        $client = static::createClient();
-
-        $crawler = $client->request('GET', '/contacts');
-    }
-
-    public function testUpdatecontact()
-    {
-        $client = static::createClient();
-
-        $crawler = $client->request('GET', '/contacts/{id}');
-    }
-
-    public function testDeletecontact()
-    {
-        $client = static::createClient();
-
-        $crawler = $client->request('GET', '/contacts/{id}');
-    }
+        $this->assertEquals(
+        $statusCode, $response->getStatusCode(),
+        $response->getContent()
+        );
+        $this->assertTrue(
+        $response->headers->contains('Content-Type', $contentType),
+        $response->headers
+        );
+        if ($checkValidJson) {
+            $decode = json_decode($response->getContent());
+            $this->assertTrue(($decode != null && $decode != false),
+            'is response valid json: [' . $response->getContent() . ']'
+            );
+        }
+     }
 
 }

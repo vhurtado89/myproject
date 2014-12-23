@@ -1,0 +1,5 @@
+contact_blog_Page:
+    type: rest
+    prefix: /
+    resource: "ContactBundle\Controller\ContactController"
+    name_prefix: api_1_ 

@@ -20,8 +20,8 @@
       <parameter key="JMSSerializerBundle">JMS\SerializerBundle\JMSSerializerBundle</parameter>
       <parameter key="FOSRestBundle">FOS\RestBundle\FOSRestBundle</parameter>
       <parameter key="ContactBundle">ContactBundle\ContactBundle</parameter>
+      <parameter key="NelmioApiDocBundle">Nelmio\ApiDocBundle\NelmioApiDocBundle</parameter>
       <parameter key="DebugBundle">Symfony\Bundle\DebugBundle\DebugBundle</parameter>
-      <parameter key="AcmeDemoBundle">Acme\DemoBundle\AcmeDemoBundle</parameter>
       <parameter key="WebProfilerBundle">Symfony\Bundle\WebProfilerBundle\WebProfilerBundle</parameter>
       <parameter key="SensioDistributionBundle">Sensio\Bundle\DistributionBundle\SensioDistributionBundle</parameter>
       <parameter key="SensioGeneratorBundle">Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle</parameter>
@@ -40,7 +40,6 @@
     <parameter key="mailer_password">null</parameter>
     <parameter key="locale">en</parameter>
     <parameter key="secret">72eda0a690330f66172ef2e150cf87272450dcad</parameter>
-    <parameter key="database_path">null</parameter>
     <parameter key="controller_resolver.class">Symfony\Bundle\FrameworkBundle\Controller\ControllerResolver</parameter>
     <parameter key="controller_name_converter.class">Symfony\Bundle\FrameworkBundle\Controller\ControllerNameParser</parameter>
     <parameter key="response_listener.class">Symfony\Component\HttpKernel\EventListener\ResponseListener</parameter>
@@ -576,7 +575,6 @@
     <parameter key="sensio_framework_extra.converter.manager.class">Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterManager</parameter>
     <parameter key="sensio_framework_extra.converter.doctrine.class">Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\DoctrineParamConverter</parameter>
     <parameter key="sensio_framework_extra.converter.datetime.class">Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\DateTimeParamConverter</parameter>
-    <parameter key="sensio_framework_extra.view.listener.class">Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener</parameter>
     <parameter key="jms_serializer.metadata.file_locator.class">Metadata\Driver\FileLocator</parameter>
     <parameter key="jms_serializer.metadata.annotation_driver.class">JMS\Serializer\Metadata\Driver\AnnotationDriver</parameter>
     <parameter key="jms_serializer.metadata.chain_driver.class">Metadata\Driver\DriverChain</parameter>
@@ -633,11 +631,13 @@
     <parameter key="fos_rest.violation_formatter.class">FOS\RestBundle\Util\ViolationFormatter</parameter>
     <parameter key="fos_rest.request.param_fetcher.class">FOS\RestBundle\Request\ParamFetcher</parameter>
     <parameter key="fos_rest.request.param_fetcher.reader.class">FOS\RestBundle\Request\ParamReader</parameter>
+    <parameter key="fos_rest.form.extension.csrf_disable.class">FOS\RestBundle\Form\Extension\DisableCSRFExtension</parameter>
+    <parameter key="fos_rest.disable_csrf_role">ROLE_API</parameter>
     <parameter key="fos_rest.cache_dir">/home/ubuntu/Interview/myproject/app/cache/dev/fos_rest</parameter>
     <parameter key="fos_rest.serializer.serialize_null">false</parameter>
     <parameter key="fos_rest.formats" type="collection">
-      <parameter key="json">false</parameter>
       <parameter key="xml">false</parameter>
+      <parameter key="json">false</parameter>
       <parameter key="html">true</parameter>
     </parameter>
     <parameter key="fos_rest.default_engine">twig</parameter>
@@ -647,10 +647,17 @@
     <parameter key="fos_rest.failed_validation">400</parameter>
     <parameter key="fos_rest.empty_content">204</parameter>
     <parameter key="fos_rest.serialize_null">false</parameter>
+    <parameter key="fos_rest.view_response_listener.class">FOS\RestBundle\EventListener\ViewResponseListener</parameter>
+    <parameter key="fos_rest.view_response_listener.force_view">true</parameter>
     <parameter key="fos_rest.routing.loader.default_format">null</parameter>
     <parameter key="fos_rest.routing.loader.include_format">true</parameter>
-    <parameter key="fos_rest.exception.codes" type="collection"/>
-    <parameter key="fos_rest.exception.messages" type="collection"/>
+    <parameter key="fos_rest.exception.codes" type="collection">
+      <parameter key="Symfony\Component\Routing\Exception\ResourceNotFoundException">404</parameter>
+      <parameter key="Doctrine\ORM\OptimisticLockException">409</parameter>
+    </parameter>
+    <parameter key="fos_rest.exception.messages" type="collection">
+      <parameter key="Symfony\Component\Routing\Exception\ResourceNotFoundException">true</parameter>
+    </parameter>
     <parameter key="fos_rest.normalizer.camel_keys.class">FOS\RestBundle\Normalizer\CamelKeysNormalizer</parameter>
     <parameter key="fos_rest.decoder.json.class">FOS\RestBundle\Decoder\JsonDecoder</parameter>
     <parameter key="fos_rest.decoder.jsontoform.class">FOS\RestBundle\Decoder\JsonToFormDecoder</parameter>
@@ -662,8 +669,67 @@
       <parameter key="json">fos_rest.decoder.json</parameter>
       <parameter key="xml">fos_rest.decoder.xml</parameter>
     </parameter>
+    <parameter key="fos_rest.format_listener.class">FOS\RestBundle\EventListener\FormatListener</parameter>
+    <parameter key="fos_rest.version_listener.class">FOS\RestBundle\EventListener\VersionListener</parameter>
+    <parameter key="fos_rest.format_listener.rules" type="collection">
+      <parameter type="collection">
+        <parameter key="path">^/</parameter>
+        <parameter key="priorities" type="collection">
+          <parameter>html</parameter>
+          <parameter>json</parameter>
+          <parameter>xml</parameter>
+        </parameter>
+        <parameter key="fallback_format">null</parameter>
+        <parameter key="prefer_extension">true</parameter>
+        <parameter key="host">null</parameter>
+        <parameter key="methods">null</parameter>
+      </parameter>
+    </parameter>
     <parameter key="fos_rest.mime_types" type="collection"/>
+    <parameter key="fos_rest.param_fetcher_listener.class">FOS\RestBundle\EventListener\ParamFetcherListener</parameter>
+    <parameter key="fos_rest.param_fetcher_listener.set_params_as_attributes">false</parameter>
+    <parameter key="fos_rest.allowed_methods_listener.class">FOS\RestBundle\EventListener\AllowedMethodsListener</parameter>
+    <parameter key="fos_rest.allowed_methods_loader.class">FOS\RestBundle\Response\AllowedMethodsLoader\AllowedMethodsRouterLoader</parameter>
+    <parameter key="fos_rest.access_denied_listener.class">FOS\RestBundle\EventListener\AccessDeniedListener</parameter>
+    <parameter key="fos_rest.access_denied_listener.formats" type="collection">
+      <parameter key="json">true</parameter>
+    </parameter>
+    <parameter key="fos_rest.access_denied_listener.unauthorized_challenge">null</parameter>
     <parameter key="fos_rest.converter.request_body.validation_errors_argument">validationErrors</parameter>
+    <parameter key="contact_blog.contact.handler.class">ContactBundle\Handler\ContactHandler</parameter>
+    <parameter key="contact_blog.contact.class">ContactBundle\Entity\Contact</parameter>
+    <parameter key="nelmio_api_doc.motd.template">NelmioApiDocBundle::Components/motd.html.twig</parameter>
+    <parameter key="nelmio_api_doc.exclude_sections" type="collection"/>
+    <parameter key="nelmio_api_doc.api_name">Page API</parameter>
+    <parameter key="nelmio_api_doc.sandbox.enabled">true</parameter>
+    <parameter key="nelmio_api_doc.sandbox.endpoint">null</parameter>
+    <parameter key="nelmio_api_doc.sandbox.accept_type">null</parameter>
+    <parameter key="nelmio_api_doc.sandbox.body_format.formats" type="collection">
+      <parameter>form</parameter>
+      <parameter>json</parameter>
+    </parameter>
+    <parameter key="nelmio_api_doc.sandbox.body_format.default_format">form</parameter>
+    <parameter key="nelmio_api_doc.sandbox.request_format.method">format_param</parameter>
+    <parameter key="nelmio_api_doc.sandbox.request_format.default_format">json</parameter>
+    <parameter key="nelmio_api_doc.sandbox.request_format.formats" type="collection">
+      <parameter key="json">application/json</parameter>
+      <parameter key="xml">application/xml</parameter>
+    </parameter>
+    <parameter key="nelmio_api_doc.formatter.abstract_formatter.class">Nelmio\ApiDocBundle\Formatter\AbstractFormatter</parameter>
+    <parameter key="nelmio_api_doc.formatter.markdown_formatter.class">Nelmio\ApiDocBundle\Formatter\MarkdownFormatter</parameter>
+    <parameter key="nelmio_api_doc.formatter.simple_formatter.class">Nelmio\ApiDocBundle\Formatter\SimpleFormatter</parameter>
+    <parameter key="nelmio_api_doc.formatter.html_formatter.class">Nelmio\ApiDocBundle\Formatter\HtmlFormatter</parameter>
+    <parameter key="nelmio_api_doc.sandbox.authentication">null</parameter>
+    <parameter key="nelmio_api_doc.extractor.api_doc_extractor.class">Nelmio\ApiDocBundle\Extractor\ApiDocExtractor</parameter>
+    <parameter key="nelmio_api_doc.form.extension.description_form_type_extension.class">Nelmio\ApiDocBundle\Form\Extension\DescriptionFormTypeExtension</parameter>
+    <parameter key="nelmio_api_doc.twig.extension.extra_markdown.class">Nelmio\ApiDocBundle\Twig\Extension\MarkdownExtension</parameter>
+    <parameter key="nelmio_api_doc.doc_comment_extractor.class">Nelmio\ApiDocBundle\Util\DocCommentExtractor</parameter>
+    <parameter key="nelmio_api_doc.extractor.handler.fos_rest.class">Nelmio\ApiDocBundle\Extractor\Handler\FosRestHandler</parameter>
+    <parameter key="nelmio_api_doc.extractor.handler.jms_security.class">Nelmio\ApiDocBundle\Extractor\Handler\JmsSecurityExtraHandler</parameter>
+    <parameter key="nelmio_api_doc.extractor.handler.sensio_framework_extra.class">Nelmio\ApiDocBundle\Extractor\Handler\SensioFrameworkExtraHandler</parameter>
+    <parameter key="nelmio_api_doc.extractor.handler.phpdoc.class">Nelmio\ApiDocBundle\Extractor\Handler\PhpDocHandler</parameter>
+    <parameter key="nelmio_api_doc.request_listener.parameter">_doc</parameter>
+    <parameter key="nelmio_api_doc.event_listener.request.class">Nelmio\ApiDocBundle\EventListener\RequestListener</parameter>
     <parameter key="web_profiler.controller.profiler.class">Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController</parameter>
     <parameter key="web_profiler.controller.router.class">Symfony\Bundle\WebProfilerBundle\Controller\RouterController</parameter>
     <parameter key="web_profiler.controller.exception.class">Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController</parameter>
@@ -738,6 +804,9 @@
     <parameter key="console.command.ids" type="collection">
       <parameter>sensio_distribution.security_checker.command</parameter>
     </parameter>
+    <parameter key="nelmio_api_doc.parser.form_type_parser.class">Nelmio\ApiDocBundle\Parser\FormTypeParser</parameter>
+    <parameter key="nelmio_api_doc.parser.validation_parser.class">Nelmio\ApiDocBundle\Parser\ValidationParser</parameter>
+    <parameter key="nelmio_api_doc.parser.jms_metadata_parser.class">Nelmio\ApiDocBundle\Parser\JmsMetadataParser</parameter>
   </parameters>
   <services>
     <service id="controller_name_converter" class="Symfony\Bundle\FrameworkBundle\Controller\ControllerNameParser" public="false">
@@ -815,6 +884,7 @@
             <argument type="service" id="doctrine"/>
           </service>
         </argument>
+        <argument type="service" id="fos_rest.allowed_methods_loader"/>
       </argument>
     </service>
     <service id="cache_clearer" class="Symfony\Component\HttpKernel\CacheClearer\ChainCacheClearer">
@@ -1189,6 +1259,8 @@
                 <argument>form.type_extension.form.validator</argument>
                 <argument>form.type_extension.csrf</argument>
                 <argument>form.type_extension.form.data_collector</argument>
+                <argument>fos_rest.form.extension.csrf_disable</argument>
+                <argument>nelmio_api_doc.form.extension.description_form_type_extension</argument>
               </argument>
               <argument key="repeated" type="collection">
                 <argument>form.type_extension.repeated.validator</argument>
@@ -1778,6 +1850,22 @@
         <argument>0</argument>
       </call>
       <call method="addListenerService">
+        <argument>kernel.controller</argument>
+        <argument type="collection">
+          <argument>fos_rest.view_response_listener</argument>
+          <argument>onKernelController</argument>
+        </argument>
+        <argument>-10</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>kernel.view</argument>
+        <argument type="collection">
+          <argument>fos_rest.view_response_listener</argument>
+          <argument>onKernelView</argument>
+        </argument>
+        <argument>100</argument>
+      </call>
+      <call method="addListenerService">
         <argument>kernel.request</argument>
         <argument type="collection">
           <argument>fos_rest.body_listener</argument>
@@ -1786,10 +1874,34 @@
         <argument>10</argument>
       </call>
       <call method="addListenerService">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument>fos_rest.format_listener</argument>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>34</argument>
+      </call>
+      <call method="addListenerService">
         <argument>kernel.controller</argument>
         <argument type="collection">
-          <argument>acme.demo.listener</argument>
+          <argument>fos_rest.param_fetcher_listener</argument>
           <argument>onKernelController</argument>
+        </argument>
+        <argument>5</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument>fos_rest.allowed_methods_listener</argument>
+          <argument>onKernelResponse</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument>nelmio_api_doc.event_listener.request</argument>
+          <argument>onKernelRequest</argument>
         </argument>
         <argument>0</argument>
       </call>
@@ -1862,16 +1974,16 @@
         <argument>Sensio\Bundle\FrameworkExtraBundle\EventListener\ParamConverterListener</argument>
       </call>
       <call method="addSubscriberService">
-        <argument>sensio_framework_extra.view.listener</argument>
-        <argument>Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener</argument>
-      </call>
-      <call method="addSubscriberService">
         <argument>sensio_framework_extra.cache.listener</argument>
         <argument>Sensio\Bundle\FrameworkExtraBundle\EventListener\HttpCacheListener</argument>
       </call>
       <call method="addSubscriberService">
         <argument>sensio_framework_extra.security.listener</argument>
         <argument>Sensio\Bundle\FrameworkExtraBundle\EventListener\SecurityListener</argument>
+      </call>
+      <call method="addSubscriberService">
+        <argument>fos_rest.access_denied_listener</argument>
+        <argument>FOS\RestBundle\EventListener\AccessDeniedListener</argument>
       </call>
       <call method="addSubscriberService">
         <argument>debug.dump_listener</argument>
@@ -2396,15 +2508,15 @@
         </argument>
       </call>
       <call method="addExtension">
+        <argument type="service" id="nelmio_api_doc.twig.extension.extra_markdown"/>
+      </call>
+      <call method="addExtension">
         <argument type="service">
           <service class="Symfony\Bridge\Twig\Extension\DumpExtension" public="false">
             <tag name="twig.extension"/>
             <argument type="service" id="var_dumper.cloner"/>
           </service>
         </argument>
-      </call>
-      <call method="addExtension">
-        <argument type="service" id="twig.extension.acme.demo"/>
       </call>
       <call method="addExtension">
         <argument type="service">
@@ -2736,10 +2848,6 @@
     </service>
     <service id="sensio_framework_extra.converter.datetime" class="Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\DateTimeParamConverter">
       <tag name="request.param_converter" converter="datetime"/>
-    </service>
-    <service id="sensio_framework_extra.view.listener" class="Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener">
-      <tag name="kernel.event_subscriber"/>
-      <argument type="service" id="service_container"/>
     </service>
     <service id="sensio_framework_extra.cache.listener" class="Sensio\Bundle\FrameworkExtraBundle\EventListener\HttpCacheListener">
       <tag name="kernel.event_subscriber"/>
@@ -3092,6 +3200,23 @@
     <service id="jms_serializer.constraint_violation_handler" class="JMS\Serializer\Handler\ConstraintViolationHandler">
       <tag name="jms_serializer.subscribing_handler"/>
     </service>
+    <service id="jms_serializer.metadata_factory" class="Metadata\MetadataFactory" public="false">
+      <argument type="service">
+        <service class="Metadata\Driver\LazyLoadingDriver" public="false">
+          <argument type="service" id="service_container"/>
+          <argument>jms_serializer.metadata_driver</argument>
+        </service>
+      </argument>
+      <argument>Metadata\ClassHierarchyMetadata</argument>
+      <argument>true</argument>
+      <call method="setCache">
+        <argument type="service">
+          <service class="Metadata\Cache\FileCache" public="false">
+            <argument>/home/ubuntu/Interview/myproject/app/cache/dev/jms_serializer</argument>
+          </service>
+        </argument>
+      </call>
+    </service>
     <service id="jms_serializer.unserialize_object_constructor" class="JMS\Serializer\Construction\UnserializeObjectConstructor" public="false"/>
     <service id="jms_serializer.templating.helper.serializer" class="JMS\SerializerBundle\Templating\SerializerHelper">
       <tag name="templating.helper" alias="jms_serializer"/>
@@ -3144,8 +3269,8 @@
       <argument type="service" id="fos_rest.routing.loader.processor"/>
       <argument>true</argument>
       <argument type="collection">
-        <argument key="json">false</argument>
         <argument key="xml">false</argument>
+        <argument key="json">false</argument>
         <argument key="html">true</argument>
       </argument>
       <argument>null</argument>
@@ -3156,8 +3281,8 @@
       <argument type="service" id="fos_rest.routing.loader.processor"/>
       <argument>true</argument>
       <argument type="collection">
-        <argument key="json">false</argument>
         <argument key="xml">false</argument>
+        <argument key="json">false</argument>
         <argument key="html">true</argument>
       </argument>
       <argument>null</argument>
@@ -3172,12 +3297,50 @@
       <argument type="service" id="fos_rest.inflector.doctrine"/>
       <argument>true</argument>
       <argument type="collection">
-        <argument key="json">false</argument>
         <argument key="xml">false</argument>
+        <argument key="json">false</argument>
         <argument key="html">true</argument>
       </argument>
     </service>
-    <service id="fos_rest.format_negotiator" class="FOS\RestBundle\Util\FormatNegotiator"/>
+    <service id="fos_rest.format_negotiator" class="FOS\RestBundle\Util\FormatNegotiator">
+      <call method="add">
+        <argument type="service">
+          <service class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
+            <argument>^/_profiler|_wdt/</argument>
+            <argument>null</argument>
+            <argument>null</argument>
+          </service>
+        </argument>
+        <argument type="collection">
+          <argument key="methods">null</argument>
+          <argument key="priorities" type="collection">
+            <argument>html</argument>
+            <argument>json</argument>
+          </argument>
+          <argument key="fallback_format">html</argument>
+          <argument key="prefer_extension">2.0</argument>
+        </argument>
+      </call>
+      <call method="add">
+        <argument type="service">
+          <service class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
+            <argument>^/</argument>
+            <argument>null</argument>
+            <argument>null</argument>
+          </service>
+        </argument>
+        <argument type="collection">
+          <argument key="priorities" type="collection">
+            <argument>html</argument>
+            <argument>json</argument>
+            <argument>xml</argument>
+          </argument>
+          <argument key="fallback_format">null</argument>
+          <argument key="prefer_extension">2.0</argument>
+          <argument key="methods">null</argument>
+        </argument>
+      </call>
+    </service>
     <service id="fos_rest.inflector.doctrine" class="FOS\RestBundle\Util\Inflector\DoctrineInflector"/>
     <service id="fos_rest.violation_formatter" class="FOS\RestBundle\Util\ViolationFormatter"/>
     <service id="fos_rest.request.param_fetcher" class="FOS\RestBundle\Request\ParamFetcher" scope="request">
@@ -3188,6 +3351,16 @@
     </service>
     <service id="fos_rest.request.param_fetcher.reader" class="FOS\RestBundle\Request\ParamReader">
       <argument type="service" id="annotation_reader"/>
+    </service>
+    <service id="fos_rest.form.extension.csrf_disable" class="FOS\RestBundle\Form\Extension\DisableCSRFExtension">
+      <tag name="form.type_extension" alias="form"/>
+      <argument type="service" id="security.context"/>
+      <argument>ROLE_API</argument>
+    </service>
+    <service id="fos_rest.view_response_listener" class="FOS\RestBundle\EventListener\ViewResponseListener">
+      <tag name="kernel.event_listener" event="kernel.controller" method="onKernelController" priority="-10"/>
+      <tag name="kernel.event_listener" event="kernel.view" method="onKernelView" priority="100"/>
+      <argument type="service" id="service_container"/>
     </service>
     <service id="fos_rest.normalizer.camel_keys" class="FOS\RestBundle\Normalizer\CamelKeysNormalizer"/>
     <service id="fos_rest.decoder.json" class="FOS\RestBundle\Decoder\JsonDecoder"/>
@@ -3207,6 +3380,137 @@
       <argument type="service" id="fos_rest.decoder_provider"/>
       <argument>false</argument>
     </service>
+    <service id="fos_rest.format_listener" class="FOS\RestBundle\EventListener\FormatListener">
+      <tag name="kernel.event_listener" event="kernel.request" method="onKernelRequest" priority="34"/>
+      <argument type="service" id="fos_rest.format_negotiator"/>
+    </service>
+    <service id="fos_rest.param_fetcher_listener" class="FOS\RestBundle\EventListener\ParamFetcherListener">
+      <tag name="kernel.event_listener" event="kernel.controller" method="onKernelController" priority="5"/>
+      <argument type="service" id="service_container"/>
+      <argument>false</argument>
+    </service>
+    <service id="fos_rest.allowed_methods_listener" class="FOS\RestBundle\EventListener\AllowedMethodsListener">
+      <tag name="kernel.event_listener" event="kernel.response" method="onKernelResponse"/>
+      <argument type="service" id="fos_rest.allowed_methods_loader"/>
+    </service>
+    <service id="fos_rest.allowed_methods_loader" class="FOS\RestBundle\Response\AllowedMethodsLoader\AllowedMethodsRouterLoader">
+      <tag name="kernel.cache_warmer"/>
+      <argument type="service" id="router"/>
+      <argument>/home/ubuntu/Interview/myproject/app/cache/dev/fos_rest</argument>
+      <argument>true</argument>
+    </service>
+    <service id="fos_rest.access_denied_listener" class="FOS\RestBundle\EventListener\AccessDeniedListener">
+      <tag name="kernel.event_subscriber"/>
+      <tag name="monolog.logger" channel="request"/>
+      <argument type="collection">
+        <argument key="json">true</argument>
+      </argument>
+      <argument>null</argument>
+      <argument>twig.controller.exception:showAction</argument>
+      <argument type="service" id="monolog.logger.request" on-invalid="null"/>
+    </service>
+    <service id="contact_blog.contact.handler" class="ContactBundle\Handler\ContactHandler">
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
+      <argument>ContactBundle\Entity\Contact</argument>
+    </service>
+    <service id="nelmio_api_doc.formatter.abstract_formatter" class="Nelmio\ApiDocBundle\Formatter\AbstractFormatter"/>
+    <service id="nelmio_api_doc.formatter.markdown_formatter" class="Nelmio\ApiDocBundle\Formatter\MarkdownFormatter"/>
+    <service id="nelmio_api_doc.formatter.simple_formatter" class="Nelmio\ApiDocBundle\Formatter\SimpleFormatter"/>
+    <service id="nelmio_api_doc.formatter.html_formatter" class="Nelmio\ApiDocBundle\Formatter\HtmlFormatter">
+      <call method="setTemplatingEngine">
+        <argument type="service" id="templating"/>
+      </call>
+      <call method="setMotdTemplate">
+        <argument>NelmioApiDocBundle::Components/motd.html.twig</argument>
+      </call>
+      <call method="setApiName">
+        <argument>Page API</argument>
+      </call>
+      <call method="setEnableSandbox">
+        <argument>true</argument>
+      </call>
+      <call method="setEndpoint">
+        <argument>null</argument>
+      </call>
+      <call method="setRequestFormatMethod">
+        <argument>format_param</argument>
+      </call>
+      <call method="setRequestFormats">
+        <argument type="collection">
+          <argument key="json">application/json</argument>
+          <argument key="xml">application/xml</argument>
+        </argument>
+      </call>
+      <call method="setDefaultRequestFormat">
+        <argument>json</argument>
+      </call>
+      <call method="setAcceptType">
+        <argument>null</argument>
+      </call>
+      <call method="setBodyFormats">
+        <argument type="collection">
+          <argument>form</argument>
+          <argument>json</argument>
+        </argument>
+      </call>
+      <call method="setDefaultBodyFormat">
+        <argument>form</argument>
+      </call>
+      <call method="setAuthentication">
+        <argument>null</argument>
+      </call>
+    </service>
+    <service id="nelmio_api_doc.doc_comment_extractor" class="Nelmio\ApiDocBundle\Util\DocCommentExtractor"/>
+    <service id="nelmio_api_doc.extractor.api_doc_extractor" class="Nelmio\ApiDocBundle\Extractor\ApiDocExtractor">
+      <argument type="service" id="service_container"/>
+      <argument type="service" id="router"/>
+      <argument type="service" id="annotation_reader"/>
+      <argument type="service" id="nelmio_api_doc.doc_comment_extractor"/>
+      <argument type="collection">
+        <argument type="service">
+          <service class="Nelmio\ApiDocBundle\Extractor\Handler\FosRestHandler" public="false">
+            <tag name="nelmio_api_doc.extractor.handler"/>
+          </service>
+        </argument>
+        <argument type="service">
+          <service class="Nelmio\ApiDocBundle\Extractor\Handler\JmsSecurityExtraHandler" public="false">
+            <tag name="nelmio_api_doc.extractor.handler"/>
+          </service>
+        </argument>
+        <argument type="service">
+          <service class="Nelmio\ApiDocBundle\Extractor\Handler\SensioFrameworkExtraHandler" public="false">
+            <tag name="nelmio_api_doc.extractor.handler"/>
+          </service>
+        </argument>
+        <argument type="service">
+          <service class="Nelmio\ApiDocBundle\Extractor\Handler\PhpDocHandler" public="false">
+            <tag name="nelmio_api_doc.extractor.handler"/>
+            <argument type="service" id="nelmio_api_doc.doc_comment_extractor"/>
+          </service>
+        </argument>
+      </argument>
+      <call method="addParser">
+        <argument type="service" id="nelmio_api_doc.parser.form_type_parser"/>
+      </call>
+      <call method="addParser">
+        <argument type="service" id="nelmio_api_doc.parser.validation_parser"/>
+      </call>
+      <call method="addParser">
+        <argument type="service" id="nelmio_api_doc.parser.jms_metadata_parser"/>
+      </call>
+    </service>
+    <service id="nelmio_api_doc.form.extension.description_form_type_extension" class="Nelmio\ApiDocBundle\Form\Extension\DescriptionFormTypeExtension">
+      <tag name="form.type_extension" alias="form"/>
+    </service>
+    <service id="nelmio_api_doc.twig.extension.extra_markdown" class="Nelmio\ApiDocBundle\Twig\Extension\MarkdownExtension">
+      <tag name="twig.extension"/>
+    </service>
+    <service id="nelmio_api_doc.event_listener.request" class="Nelmio\ApiDocBundle\EventListener\RequestListener">
+      <tag name="kernel.event_listener" event="kernel.request" method="onKernelRequest"/>
+      <argument type="service" id="nelmio_api_doc.extractor.api_doc_extractor"/>
+      <argument type="service" id="nelmio_api_doc.formatter.html_formatter"/>
+      <argument>_doc</argument>
+    </service>
     <service id="data_collector.dump" class="Symfony\Component\HttpKernel\DataCollector\DumpDataCollector">
       <tag name="data_collector" id="dump" template="@Debug/Profiler/dump.html.twig"/>
       <argument type="service" id="debug.stopwatch" on-invalid="ignore"/>
@@ -3224,14 +3528,6 @@
       <call method="setMaxString">
         <argument>-1</argument>
       </call>
-    </service>
-    <service id="twig.extension.acme.demo" class="Acme\DemoBundle\Twig\Extension\DemoExtension" public="false">
-      <tag name="twig.extension"/>
-      <argument type="service" id="twig.loader"/>
-    </service>
-    <service id="acme.demo.listener" class="Acme\DemoBundle\EventListener\ControllerListener">
-      <tag name="kernel.event_listener" event="kernel.controller" method="onKernelController"/>
-      <argument type="service" id="twig.extension.acme.demo"/>
     </service>
     <service id="web_profiler.controller.profiler" class="Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController">
       <argument type="service" id="router" on-invalid="null"/>
@@ -3464,6 +3760,20 @@
       <argument>100</argument>
       <argument>true</argument>
     </service>
+    <service id="nelmio_api_doc.parser.form_type_parser" class="Nelmio\ApiDocBundle\Parser\FormTypeParser">
+      <tag name="nelmio_api_doc.extractor.parser"/>
+      <argument type="service" id="form.factory"/>
+    </service>
+    <service id="nelmio_api_doc.parser.validation_parser" class="Nelmio\ApiDocBundle\Parser\ValidationParser">
+      <tag name="nelmio_api_doc.extractor.parser"/>
+      <argument type="service" id="validator"/>
+    </service>
+    <service id="nelmio_api_doc.parser.jms_metadata_parser" class="Nelmio\ApiDocBundle\Parser\JmsMetadataParser">
+      <tag name="nelmio_api_doc.extractor.parser"/>
+      <argument type="service" id="jms_serializer.metadata_factory"/>
+      <argument type="service" id="jms_serializer.naming_strategy"/>
+      <argument type="service" id="nelmio_api_doc.doc_comment_extractor"/>
+    </service>
     <service id="session.storage.filesystem" class="Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage">
       <argument>/home/ubuntu/Interview/myproject/app/cache/dev/sessions</argument>
       <argument>MOCKSESSID</argument>
@@ -3582,12 +3892,12 @@
         <argument>Contact</argument>
       </call>
       <call method="addPath">
-        <argument>/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/views</argument>
-        <argument>Debug</argument>
+        <argument>/home/ubuntu/Interview/myproject/vendor/nelmio/api-doc-bundle/Nelmio/ApiDocBundle/Resources/views</argument>
+        <argument>NelmioApiDoc</argument>
       </call>
       <call method="addPath">
-        <argument>/home/ubuntu/Interview/myproject/src/Acme/DemoBundle/Resources/views</argument>
-        <argument>AcmeDemo</argument>
+        <argument>/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/views</argument>
+        <argument>Debug</argument>
       </call>
       <call method="addPath">
         <argument>/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/WebProfilerBundle/Resources/views</argument>
@@ -3696,8 +4006,8 @@
                       <argument key="JMS\SerializerBundle">/home/ubuntu/Interview/myproject/vendor/jms/serializer-bundle/JMS/SerializerBundle/Resources/config/serializer</argument>
                       <argument key="FOS\RestBundle">/home/ubuntu/Interview/myproject/vendor/friendsofsymfony/rest-bundle/FOS/RestBundle/Resources/config/serializer</argument>
                       <argument key="ContactBundle">/home/ubuntu/Interview/myproject/src/ContactBundle/Resources/config/serializer</argument>
+                      <argument key="Nelmio\ApiDocBundle">/home/ubuntu/Interview/myproject/vendor/nelmio/api-doc-bundle/Nelmio/ApiDocBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\DebugBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/config/serializer</argument>
-                      <argument key="Acme\DemoBundle">/home/ubuntu/Interview/myproject/src/Acme/DemoBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\WebProfilerBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/WebProfilerBundle/Resources/config/serializer</argument>
                       <argument key="Sensio\Bundle\DistributionBundle">/home/ubuntu/Interview/myproject/vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/config/serializer</argument>
                       <argument key="Sensio\Bundle\GeneratorBundle">/home/ubuntu/Interview/myproject/vendor/sensio/generator-bundle/Sensio/Bundle/GeneratorBundle/Resources/config/serializer</argument>
@@ -3723,8 +4033,8 @@
                       <argument key="JMS\SerializerBundle">/home/ubuntu/Interview/myproject/vendor/jms/serializer-bundle/JMS/SerializerBundle/Resources/config/serializer</argument>
                       <argument key="FOS\RestBundle">/home/ubuntu/Interview/myproject/vendor/friendsofsymfony/rest-bundle/FOS/RestBundle/Resources/config/serializer</argument>
                       <argument key="ContactBundle">/home/ubuntu/Interview/myproject/src/ContactBundle/Resources/config/serializer</argument>
+                      <argument key="Nelmio\ApiDocBundle">/home/ubuntu/Interview/myproject/vendor/nelmio/api-doc-bundle/Nelmio/ApiDocBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\DebugBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/config/serializer</argument>
-                      <argument key="Acme\DemoBundle">/home/ubuntu/Interview/myproject/src/Acme/DemoBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\WebProfilerBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/WebProfilerBundle/Resources/config/serializer</argument>
                       <argument key="Sensio\Bundle\DistributionBundle">/home/ubuntu/Interview/myproject/vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/config/serializer</argument>
                       <argument key="Sensio\Bundle\GeneratorBundle">/home/ubuntu/Interview/myproject/vendor/sensio/generator-bundle/Sensio/Bundle/GeneratorBundle/Resources/config/serializer</argument>
@@ -3750,8 +4060,8 @@
                       <argument key="JMS\SerializerBundle">/home/ubuntu/Interview/myproject/vendor/jms/serializer-bundle/JMS/SerializerBundle/Resources/config/serializer</argument>
                       <argument key="FOS\RestBundle">/home/ubuntu/Interview/myproject/vendor/friendsofsymfony/rest-bundle/FOS/RestBundle/Resources/config/serializer</argument>
                       <argument key="ContactBundle">/home/ubuntu/Interview/myproject/src/ContactBundle/Resources/config/serializer</argument>
+                      <argument key="Nelmio\ApiDocBundle">/home/ubuntu/Interview/myproject/vendor/nelmio/api-doc-bundle/Nelmio/ApiDocBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\DebugBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/config/serializer</argument>
-                      <argument key="Acme\DemoBundle">/home/ubuntu/Interview/myproject/src/Acme/DemoBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\WebProfilerBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/WebProfilerBundle/Resources/config/serializer</argument>
                       <argument key="Sensio\Bundle\DistributionBundle">/home/ubuntu/Interview/myproject/vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/config/serializer</argument>
                       <argument key="Sensio\Bundle\GeneratorBundle">/home/ubuntu/Interview/myproject/vendor/sensio/generator-bundle/Sensio/Bundle/GeneratorBundle/Resources/config/serializer</argument>
@@ -3787,25 +4097,7 @@
       <argument type="service" id="jms_serializer.unserialize_object_constructor"/>
     </service>
     <service id="jms_serializer" class="JMS\Serializer\Serializer">
-      <argument type="service">
-        <service class="Metadata\MetadataFactory" public="false">
-          <argument type="service">
-            <service class="Metadata\Driver\LazyLoadingDriver" public="false">
-              <argument type="service" id="service_container"/>
-              <argument>jms_serializer.metadata_driver</argument>
-            </service>
-          </argument>
-          <argument>Metadata\ClassHierarchyMetadata</argument>
-          <argument>true</argument>
-          <call method="setCache">
-            <argument type="service">
-              <service class="Metadata\Cache\FileCache" public="false">
-                <argument>/home/ubuntu/Interview/myproject/app/cache/dev/jms_serializer</argument>
-              </service>
-            </argument>
-          </call>
-        </service>
-      </argument>
+      <argument type="service" id="jms_serializer.metadata_factory"/>
       <argument type="service" id="jms_serializer.handler_registry"/>
       <argument type="service" id="jms_serializer.unserialize_object_constructor"/>
       <argument type="service">
@@ -3865,8 +4157,8 @@
     </service>
     <service id="fos_rest.view_handler" class="FOS\RestBundle\View\ViewHandler">
       <argument type="collection">
-        <argument key="json">false</argument>
         <argument key="xml">false</argument>
+        <argument key="json">false</argument>
         <argument key="html">true</argument>
       </argument>
       <argument>400</argument>

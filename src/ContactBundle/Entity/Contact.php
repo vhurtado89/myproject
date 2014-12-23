@@ -3,6 +3,7 @@
 namespace ContactBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use ContactBundle\Model\ContactInterface;
 
 /**
  * Contact
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table()
  * @ORM\Entity
  */
-class Contact
+class Contact implements ContactInterface
 {
     /**
      * @var integer

@@ -1,8 +1,7 @@
-contact:
-    resource: "@ContactBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
 app:
     resource: @AppBundle/Controller/
     type:     annotation
+contact_blog:
+    type: rest
+    prefix: /api
+    resource: "@ContactBundle/Resources/config/routes.yml"

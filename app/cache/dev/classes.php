@@ -6248,7 +6248,7 @@ protected $withCase = array('true'=> self::T_TRUE,'false'=> self::T_FALSE,'null'
 );
 protected function getCatchablePatterns()
 {
-return array('[a-z_\\\][a-z0-9_\:\\\]*[a-z_][a-z0-9_]*','(?:[+-]?[0-9]+(?:[\.][0-9]+)*)(?:[eE][+-]?[0-9]+)?','"(?:[^"]|"")*"',
+return array('[a-z_\\\][a-z0-9_\:\\\]*[a-z_][a-z0-9_]*','(?:[+-]?[0-9]+(?:[\.][0-9]+)*)(?:[eE][+-]?[0-9]+)?','"(?:""|[^"])*+"',
 );
 }
 protected function getNonCatchablePatterns()
@@ -6392,7 +6392,19 @@ private function saveCacheFile($path, $data)
 if (!is_writable($this->dir)) {
 throw new \InvalidArgumentException(sprintf('The directory "%s" is not writable. Both, the webserver and the console user need access. You can manage access rights for multiple users with "chmod +a". If your system does not support this, check out the acl package.', $this->dir));
 }
-file_put_contents($path,'<?php return unserialize('.var_export(serialize($data), true).');');
+$tempfile = tempnam($this->dir, uniqid('', true));
+if (false === $tempfile) {
+throw new \RuntimeException(sprintf('Unable to create tempfile in directory: %s', $this->dir));
+}
+$written = file_put_contents($tempfile,'<?php return unserialize('.var_export(serialize($data), true).');');
+if (false === $written) {
+throw new \RuntimeException(sprintf('Unable to write cached file to: %s', $tempfile));
+}
+if (false === rename($tempfile, $path)) {
+throw new \RuntimeException(sprintf('Unable to rename %s to %s', $tempfile, $path));
+}
+@chmod($path, 0666 & ~umask());
+@unlink($tempfile);
 }
 public function getClassAnnotation(\ReflectionClass $class, $annotationName)
 {
@@ -7157,87 +7169,6 @@ foreach ($this->converters as $all) {
 $converters = array_merge($converters, $all);
 }
 return $converters;
-}
-}
-}
-namespace Sensio\Bundle\FrameworkExtraBundle\EventListener
-{
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
-use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-class TemplateListener implements EventSubscriberInterface
-{
-protected $container;
-public function __construct(ContainerInterface $container)
-{
-$this->container = $container;
-}
-public function onKernelController(FilterControllerEvent $event)
-{
-if (!is_array($controller = $event->getController())) {
-return;
-}
-$request = $event->getRequest();
-if (!$configuration = $request->attributes->get('_template')) {
-return;
-}
-if (!$configuration->getTemplate()) {
-$guesser = $this->container->get('sensio_framework_extra.view.guesser');
-$configuration->setTemplate($guesser->guessTemplateName($controller, $request, $configuration->getEngine()));
-}
-$request->attributes->set('_template', $configuration->getTemplate());
-$request->attributes->set('_template_vars', $configuration->getVars());
-$request->attributes->set('_template_streamable', $configuration->isStreamable());
-if (!$configuration->getVars()) {
-$r = new \ReflectionObject($controller[0]);
-$vars = array();
-foreach ($r->getMethod($controller[1])->getParameters() as $param) {
-$vars[] = $param->getName();
-}
-$request->attributes->set('_template_default_vars', $vars);
-}
-}
-public function onKernelView(GetResponseForControllerResultEvent $event)
-{
-$request = $event->getRequest();
-$parameters = $event->getControllerResult();
-$templating = $this->container->get('templating');
-if (null === $parameters) {
-if (!$vars = $request->attributes->get('_template_vars')) {
-if (!$vars = $request->attributes->get('_template_default_vars')) {
-return;
-}
-}
-$parameters = array();
-foreach ($vars as $var) {
-$parameters[$var] = $request->attributes->get($var);
-}
-}
-if (!is_array($parameters)) {
-return $parameters;
-}
-if (!$template = $request->attributes->get('_template')) {
-return $parameters;
-}
-if (!$request->attributes->get('_template_streamable')) {
-$event->setResponse($templating->renderResponse($template, $parameters));
-} else {
-$callback = function () use ($templating, $template, $parameters) {
-return $templating->stream($template, $parameters);
-};
-$event->setResponse(new StreamedResponse($callback));
-}
-}
-public static function getSubscribedEvents()
-{
-return array(
-KernelEvents::CONTROLLER => array('onKernelController', -128),
-KernelEvents::VIEW =>'onKernelView',
-);
 }
 }
 }
