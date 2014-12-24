@@ -44,6 +44,6 @@ class ContactType extends AbstractType
      */
     public function getName()
     {
-        return 'contactbundle_contact';
+        return '';
     }
 }

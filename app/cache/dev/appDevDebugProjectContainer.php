@@ -1301,7 +1301,7 @@ class appDevDebugProjectContainer extends Container
      */
     protected function getContactBlog_Contact_HandlerService()
     {
-        return $this->services['contact_blog.contact.handler'] = new \ContactBundle\Handler\ContactHandler($this->get('doctrine.orm.default_entity_manager'), 'ContactBundle\\Entity\\Contact');
+        return $this->services['contact_blog.contact.handler'] = new \ContactBundle\Handler\ContactHandler($this->get('doctrine.orm.default_entity_manager'), 'ContactBundle\\Entity\\Contact', $this->get('form.factory'));
     }
 
     /**
@@ -4985,6 +4985,7 @@ class appDevDebugProjectContainer extends Container
         $instance->setTranslator($this->get('translator'));
         $instance->setTranslationDomain('validators');
         $instance->addXmlMappings(array(0 => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/config/validation.xml')));
+        $instance->addYamlMappings(array(0 => (dirname(dirname(dirname(__DIR__))).'/src/ContactBundle/Resources/config/validation.yml')));
         $instance->enableAnnotationMapping($this->get('annotation_reader'));
         $instance->addMethodMapping('loadValidatorMetadata');
         $instance->setApiVersion(3);

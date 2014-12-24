@@ -12,8 +12,9 @@
     
     <services>
         <service id="contact_blog.contact.handler" class="%contact_blog.contact.handler.class%">
-            <argument type="service" id="doctrine.orm.entity_manager" />            
+            <argument type="service" id="doctrine.orm.entity_manager" />
             <argument>%contact_blog.contact.class%</argument>
+            <argument type="service" id="form.factory"></argument>
         </service>
     </services>
     

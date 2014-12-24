@@ -1516,6 +1516,11 @@
           <argument>/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/config/validation.xml</argument>
         </argument>
       </call>
+      <call method="addYamlMappings">
+        <argument type="collection">
+          <argument>/home/ubuntu/Interview/myproject/src/ContactBundle/Resources/config/validation.yml</argument>
+        </argument>
+      </call>
       <call method="enableAnnotationMapping">
         <argument type="service" id="annotation_reader"/>
       </call>
@@ -3412,6 +3417,7 @@
     <service id="contact_blog.contact.handler" class="ContactBundle\Handler\ContactHandler">
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
       <argument>ContactBundle\Entity\Contact</argument>
+      <argument type="service" id="form.factory"/>
     </service>
     <service id="nelmio_api_doc.formatter.abstract_formatter" class="Nelmio\ApiDocBundle\Formatter\AbstractFormatter"/>
     <service id="nelmio_api_doc.formatter.markdown_formatter" class="Nelmio\ApiDocBundle\Formatter\MarkdownFormatter"/>

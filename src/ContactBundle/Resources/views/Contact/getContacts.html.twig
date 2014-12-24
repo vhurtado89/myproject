@@ -1,0 +1,15 @@
+{% block content %}
+	<h1 class-"firstname">{{ 'contact.list'| trans({}, 'ContactBundle') }}</h1>
+
+	<ul id="contact-list">
+		{% for contact in contacts %}
+			<li>
+				<a href = "{{ path('api_1_get_contact', {'id': contact.id}) }}"> {{ contact.firstname }} {{ contact.lastname }}</a>
+			</li>
+		{% else %}
+			<li>
+				{{ 'contact.list.empty'| trans({}, 'ContactBundle' ) }}
+			</li>
+		{% endfor %}
+	</ul>
+{% endblock %}

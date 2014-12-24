@@ -136,16 +136,52 @@ class appTestUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirecta
             return array (  '_controller' => 'AppBundle\\Controller\\DefaultController::indexAction',  '_route' => 'homepage',);
         }
 
-        // api_1_get_contact
-        if (0 === strpos($pathinfo, '/api/contacts') && preg_match('#^/api/contacts/(?P<id>[^/\\.]++)(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
-            if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
-                $allow = array_merge($allow, array('GET', 'HEAD'));
-                goto not_api_1_get_contact;
-            }
+        if (0 === strpos($pathinfo, '/api/contacts')) {
+            // api_1_new_contact
+            if (0 === strpos($pathinfo, '/api/contacts/new') && preg_match('#^/api/contacts/new(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
+                if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
+                    $allow = array_merge($allow, array('GET', 'HEAD'));
+                    goto not_api_1_new_contact;
+                }
 
-            return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_get_contact')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::getContactAction',  '_format' => NULL,));
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_new_contact')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::newContactAction',  '_format' => NULL,));
+            }
+            not_api_1_new_contact:
+
+            // api_1_get_contact
+            if (preg_match('#^/api/contacts/(?P<id>[^/\\.]++)(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
+                if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
+                    $allow = array_merge($allow, array('GET', 'HEAD'));
+                    goto not_api_1_get_contact;
+                }
+
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_get_contact')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::getContactAction',  '_format' => NULL,));
+            }
+            not_api_1_get_contact:
+
+            // api_1_get_contacts
+            if (preg_match('#^/api/contacts(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
+                if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
+                    $allow = array_merge($allow, array('GET', 'HEAD'));
+                    goto not_api_1_get_contacts;
+                }
+
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_get_contacts')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::getContactsAction',  '_format' => NULL,));
+            }
+            not_api_1_get_contacts:
+
+            // api_1_post_contact
+            if (preg_match('#^/api/contacts(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
+                if ($this->context->getMethod() != 'POST') {
+                    $allow[] = 'POST';
+                    goto not_api_1_post_contact;
+                }
+
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_post_contact')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::postContactAction',  '_format' => NULL,));
+            }
+            not_api_1_post_contact:
+
         }
-        not_api_1_get_contact:
 
         throw 0 < count($allow) ? new MethodNotAllowedException(array_unique($allow)) : new ResourceNotFoundException();
     }

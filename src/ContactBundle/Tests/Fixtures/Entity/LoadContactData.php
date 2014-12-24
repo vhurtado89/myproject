@@ -22,8 +22,8 @@ class LoadContactData implements FixtureInterface
 		$contact->setCity('City');
 		$contact->setState('st');
 		$contact->setZip(93543);
-		$contact->setPhone1(5555555555);
-		$contact->setPhone2(6666666666);
+		$contact->setPhone1(555555555);
+		$contact->setPhone2(666666666);
 
 		$manager->persist($contact);
 		$manager->flush();
