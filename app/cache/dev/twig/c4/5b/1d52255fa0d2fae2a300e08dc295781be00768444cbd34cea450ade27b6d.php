@@ -23,8 +23,8 @@ class __TwigTemplate_c45b1d52255fa0d2fae2a300e08dc295781be00768444cbd34cea450ade
     public function block_content($context, array $blocks = array())
     {
         // line 2
-        echo "\t<h1 class-\"firstname\">";
-        echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans("contact.list", array(), "ContactBundle"), "html", null, true);
+        echo "\t<h1 class=\"firstname\">";
+        echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans("contact list", array(), "ContactBundle"), "html", null, true);
         echo "</h1>
 
 \t<ul id=\"contact-list\">
@@ -63,6 +63,14 @@ class __TwigTemplate_c45b1d52255fa0d2fae2a300e08dc295781be00768444cbd34cea450ade
         $context = array_intersect_key($context, $_parent) + $_parent;
         // line 14
         echo "\t</ul>
+\t<p>
+\t\t<a href=\"";
+        // line 16
+        echo $this->env->getExtension('routing')->getPath("api_1_new_contact");
+        echo "\">";
+        echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans("contact.new.link", array(), "ContactBundle"), "html", null, true);
+        echo "</a>
+\t</p>
 ";
     }
 
@@ -73,6 +81,6 @@ class __TwigTemplate_c45b1d52255fa0d2fae2a300e08dc295781be00768444cbd34cea450ade
 
     public function getDebugInfo()
     {
-        return array (  65 => 14,  56 => 11,  53 => 10,  41 => 7,  38 => 6,  33 => 5,  26 => 2,  20 => 1,);
+        return array (  69 => 16,  65 => 14,  56 => 11,  53 => 10,  41 => 7,  38 => 6,  33 => 5,  26 => 2,  20 => 1,);
     }
 }

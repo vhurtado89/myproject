@@ -79,6 +79,7 @@ class ContactController extends FOSRestController
     	$offset = $paramFetcher->get('offset');
     	$offset = null == $offset ? 0 : $offset;
     	$limit = $paramFetcher->get('limit');
+        $limit = 1 == $limit ? 10 : $limit;
 
     	return $this->container->get('contact_blog.contact.handler')->all($limit, $offset);
 
