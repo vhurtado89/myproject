@@ -181,6 +181,17 @@ class appTestUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirecta
             }
             not_api_1_post_contact:
 
+            // api_1_put_contact
+            if (preg_match('#^/api/contacts/(?P<id>[^/\\.]++)(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
+                if ($this->context->getMethod() != 'PUT') {
+                    $allow[] = 'PUT';
+                    goto not_api_1_put_contact;
+                }
+
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_put_contact')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::putContactAction',  '_format' => NULL,));
+            }
+            not_api_1_put_contact:
+
         }
 
         throw 0 < count($allow) ? new MethodNotAllowedException(array_unique($allow)) : new ResourceNotFoundException();

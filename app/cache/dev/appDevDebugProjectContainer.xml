@@ -2146,6 +2146,7 @@
             <argument>userpass</argument>
             <argument type="collection">
               <argument>ROLE_USER</argument>
+              <argument>ROLE_API</argument>
             </argument>
           </service>
         </argument>
@@ -2157,6 +2158,7 @@
             <argument>adminpass</argument>
             <argument type="collection">
               <argument>ROLE_ADMIN</argument>
+              <argument>ROLE_API</argument>
             </argument>
           </service>
         </argument>

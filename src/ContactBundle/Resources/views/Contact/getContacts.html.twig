@@ -4,7 +4,16 @@
 	<ul id="contact-list">
 		{% for contact in contacts %}
 			<li>
-				<a href = "{{ path('api_1_get_contact', {'id': contact.id}) }}"> {{ contact.firstname }} {{ contact.lastname }}</a>
+				{{ contact.id }}
+
+				<a href = "{{ path('api_1_get_contact', {'id': contact.id}) }}"> {{ contact.firstname }} {{ contact.lastname }}
+				</a>
+
+				<a href= "{{ path('api_1_edit_contact' , {'id': contact.id}) }}">{{ 'edit' | trans({}, 'ContactBundle') }}
+				</a>
+
+				<a href= "{{ path('api_1_remove_contact' , {'id': contact.id}) }}">{{ 'delete' | trans({}, 'ContactBundle') }}
+				</a>
 			</li>
 		{% else %}
 			<li>
@@ -13,6 +22,6 @@
 		{% endfor %}
 	</ul>
 	<p>
-		<a href="{{ path('api_1_new_contact') }}">{{ 'contact.new.link'|trans({}, 'ContactBundle') }}</a>
+		<a href="{{ path('api_1_new_contact') }}">{{ 'Add new Contact'|trans({}, 'ContactBundle') }}</a>
 	</p>
 {% endblock %}

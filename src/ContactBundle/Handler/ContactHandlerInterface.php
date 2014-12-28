@@ -35,5 +35,33 @@ interface ContactHandlerInterface
 	*@return ContactInterface
 	*/
 	public function post(array $parameters);
+	 
+	 /**
+	 *Edit contact or create if it doesn't exist
+	 *
+	 *@param ContactInterface $contact
+	 *@param array            $parameter
+	 *
+	 *@return ContactInterface 
+	 */
+	 public function put(ContactInterface $contact, array $paramters);
+
+	 /**
+	 *Partially update a Contact 
+	 *
+	 *@param ContactInterface $contact
+	 *@param array            $parameters
+	 *
+	 *@return ContactInterface
+	 */
+	 public function patch(ContactInterface $contact, array $parameters);
+
+	  /**
+	 *Delete Contact 
+	 *
+	 *@param ContactInterface $contact
+	 *
+	 */
+	  public function delete(ContactInterface $contact);
 }
 

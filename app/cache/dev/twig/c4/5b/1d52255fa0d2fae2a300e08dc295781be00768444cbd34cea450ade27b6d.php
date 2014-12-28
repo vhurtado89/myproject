@@ -36,23 +36,45 @@ class __TwigTemplate_c45b1d52255fa0d2fae2a300e08dc295781be00768444cbd34cea450ade
         foreach ($context['_seq'] as $context["_key"] => $context["contact"]) {
             // line 6
             echo "\t\t\t<li>
-\t\t\t\t<a href = \"";
+\t\t\t\t";
             // line 7
+            echo twig_escape_filter($this->env, $this->getAttribute($context["contact"], "id", array()), "html", null, true);
+            echo "
+
+\t\t\t\t<a href = \"";
+            // line 9
             echo twig_escape_filter($this->env, $this->env->getExtension('routing')->getPath("api_1_get_contact", array("id" => $this->getAttribute($context["contact"], "id", array()))), "html", null, true);
             echo "\"> ";
             echo twig_escape_filter($this->env, $this->getAttribute($context["contact"], "firstname", array()), "html", null, true);
             echo " ";
             echo twig_escape_filter($this->env, $this->getAttribute($context["contact"], "lastname", array()), "html", null, true);
-            echo "</a>
+            echo "
+\t\t\t\t</a>
+
+\t\t\t\t<a href= \"";
+            // line 12
+            echo twig_escape_filter($this->env, $this->env->getExtension('routing')->getPath("api_1_edit_contact", array("id" => $this->getAttribute($context["contact"], "id", array()))), "html", null, true);
+            echo "\">";
+            echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans("edit", array(), "ContactBundle"), "html", null, true);
+            echo "
+\t\t\t\t</a>
+
+\t\t\t\t<a href= \"";
+            // line 15
+            echo twig_escape_filter($this->env, $this->env->getExtension('routing')->getPath("api_1_remove_contact", array("id" => $this->getAttribute($context["contact"], "id", array()))), "html", null, true);
+            echo "\">";
+            echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans("delete", array(), "ContactBundle"), "html", null, true);
+            echo "
+\t\t\t\t</a>
 \t\t\t</li>
 \t\t";
             $context['_iterated'] = true;
         }
         if (!$context['_iterated']) {
-            // line 10
+            // line 19
             echo "\t\t\t<li>
 \t\t\t\t";
-            // line 11
+            // line 20
             echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans("contact.list.empty", array(), "ContactBundle"), "html", null, true);
             echo "
 \t\t\t</li>
@@ -61,14 +83,14 @@ class __TwigTemplate_c45b1d52255fa0d2fae2a300e08dc295781be00768444cbd34cea450ade
         $_parent = $context['_parent'];
         unset($context['_seq'], $context['_iterated'], $context['_key'], $context['contact'], $context['_parent'], $context['loop']);
         $context = array_intersect_key($context, $_parent) + $_parent;
-        // line 14
+        // line 23
         echo "\t</ul>
 \t<p>
 \t\t<a href=\"";
-        // line 16
+        // line 25
         echo $this->env->getExtension('routing')->getPath("api_1_new_contact");
         echo "\">";
-        echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans("contact.new.link", array(), "ContactBundle"), "html", null, true);
+        echo twig_escape_filter($this->env, $this->env->getExtension('translator')->trans("Add new Contact", array(), "ContactBundle"), "html", null, true);
         echo "</a>
 \t</p>
 ";
@@ -81,6 +103,6 @@ class __TwigTemplate_c45b1d52255fa0d2fae2a300e08dc295781be00768444cbd34cea450ade
 
     public function getDebugInfo()
     {
-        return array (  69 => 16,  65 => 14,  56 => 11,  53 => 10,  41 => 7,  38 => 6,  33 => 5,  26 => 2,  20 => 1,);
+        return array (  91 => 25,  87 => 23,  78 => 20,  75 => 19,  64 => 15,  56 => 12,  46 => 9,  41 => 7,  38 => 6,  33 => 5,  26 => 2,  20 => 1,);
     }
 }

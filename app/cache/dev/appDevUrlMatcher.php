@@ -137,6 +137,17 @@ class appDevUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirectab
         }
 
         if (0 === strpos($pathinfo, '/api/contacts')) {
+            // api_1_remove_contact
+            if (preg_match('#^/api/contacts/(?P<id>[^/]++)/remove(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
+                if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
+                    $allow = array_merge($allow, array('GET', 'HEAD'));
+                    goto not_api_1_remove_contact;
+                }
+
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_remove_contact')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::removeContactAction',  '_format' => NULL,));
+            }
+            not_api_1_remove_contact:
+
             // api_1_new_contact
             if (0 === strpos($pathinfo, '/api/contacts/new') && preg_match('#^/api/contacts/new(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
                 if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
@@ -147,6 +158,17 @@ class appDevUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirectab
                 return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_new_contact')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::newContactAction',  '_format' => NULL,));
             }
             not_api_1_new_contact:
+
+            // api_1_edit_contact
+            if (preg_match('#^/api/contacts/(?P<id>[^/]++)/edit(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
+                if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
+                    $allow = array_merge($allow, array('GET', 'HEAD'));
+                    goto not_api_1_edit_contact;
+                }
+
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_edit_contact')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::editContactAction',  '_format' => NULL,));
+            }
+            not_api_1_edit_contact:
 
             // api_1_get_contact
             if (preg_match('#^/api/contacts/(?P<id>[^/\\.]++)(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
@@ -180,6 +202,28 @@ class appDevUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirectab
                 return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_post_contact')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::postContactAction',  '_format' => NULL,));
             }
             not_api_1_post_contact:
+
+            // api_1_put_contact
+            if (preg_match('#^/api/contacts/(?P<id>[^/\\.]++)(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
+                if ($this->context->getMethod() != 'PUT') {
+                    $allow[] = 'PUT';
+                    goto not_api_1_put_contact;
+                }
+
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_put_contact')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::putContactAction',  '_format' => NULL,));
+            }
+            not_api_1_put_contact:
+
+            // api_1_delete_contact
+            if (preg_match('#^/api/contacts/(?P<id>[^/\\.]++)(?:\\.(?P<_format>xml|json|html))?$#s', $pathinfo, $matches)) {
+                if ($this->context->getMethod() != 'DELETE') {
+                    $allow[] = 'DELETE';
+                    goto not_api_1_delete_contact;
+                }
+
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'api_1_delete_contact')), array (  '_controller' => 'ContactBundle\\Controller\\ContactController::deleteContactAction',  '_format' => NULL,));
+            }
+            not_api_1_delete_contact:
 
         }
 

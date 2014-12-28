@@ -33,15 +33,19 @@ class __TwigTemplate_cceee26f959f1e46292a96690e2cef33997fa80cda8fef5f9fdc72c9292
             echo "\" method=\"POST\" ";
             echo $this->env->getExtension('form')->renderer->searchAndRenderBlock((isset($context["form"]) ? $context["form"] : $this->getContext($context, "form")), 'enctype');
             echo ">
+
 \t\t\t";
-            // line 5
+            // line 6
             echo $this->env->getExtension('form')->renderer->searchAndRenderBlock((isset($context["form"]) ? $context["form"] : $this->getContext($context, "form")), 'widget');
-            echo "\t\t
+            echo "\t
+
 \t\t\t<input type=\"submit\" value=\"submit\">
+
 \t\t\t";
-            // line 7
+            // line 10
             echo             $this->env->getExtension('form')->renderer->renderBlock((isset($context["form"]) ? $context["form"] : $this->getContext($context, "form")), 'form_end');
             echo "
+\t\t\t
 \t\t</form>
 \t";
         }
@@ -54,6 +58,6 @@ class __TwigTemplate_cceee26f959f1e46292a96690e2cef33997fa80cda8fef5f9fdc72c9292
 
     public function getDebugInfo()
     {
-        return array (  43 => 7,  38 => 5,  31 => 4,  29 => 3,  20 => 1,);
+        return array (  46 => 10,  39 => 6,  31 => 4,  29 => 3,  20 => 1,);
     }
 }

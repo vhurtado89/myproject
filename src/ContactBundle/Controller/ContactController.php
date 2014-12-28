@@ -53,6 +53,7 @@ class ContactController extends FOSRestController
 
         return $contact;
     }
+
     /**
     *List All Contacts
     *
@@ -86,6 +87,25 @@ class ContactController extends FOSRestController
     }
 
     /**
+    *Presents the form to use to create a new contact
+    *
+    *@ApiDoc(
+    *   resource = true,
+    *   statusCodes = {
+    *       200 = "Returned when successful."
+    *   }
+    *)
+    *
+    *@Annotations\View()
+    *
+    *@return FormTypeInterface
+    */
+    public function newContactAction()
+    {
+        return $this->createForm(new ContactType());
+    }
+
+    /**
     *Create Contact Page from submitted data
     *
     *@ApiDoc(
@@ -111,7 +131,7 @@ class ContactController extends FOSRestController
     public function postContactAction(Request $request)
     {
     	try{
-            $form = new ContactType();
+            
     		$newContact = $this->container->get('contact_blog.contact.handler')->post(
     			$request->request->all()
     		);
@@ -125,24 +145,122 @@ class ContactController extends FOSRestController
     		return $exception->getForm();
     	}
     }
+
     /**
-    *Presents the form to use to create a new contact
-    *
-    *@ApiDoc(
-    *	resource = true,
-    *	statusCodes = {
-    *		200 = "Returned when successful."
-    *	}
-    *)
+    *Presents the form to use update a contact
     *
     *@Annotations\View()
     *
+    *@param Request $request the request object
+    *@param int     $id      the contact id
+    *
     *@return FormTypeInterface
     */
-    public function newContactAction()
+    public function editContactAction(Request $request, $id)
     {
-    	return $this->createForm(new ContactType());
+       $contact = $this->getOr404($id);
+       $form= $this->createForm(new ContactType(), $contact);
+       return $form;
     }
+
+    /**
+    *Update existing contact from the submitted data or create new contact
+    *
+    *@ApiDoc(
+    *   resource = true,
+    *   input = "ContactBundle\Form\PageType",
+    *   statusCodes = {
+    *       201= "Returned when contact is created",
+    *       204= "Returned when successful",
+    *       400= "Returned when the form has errors"
+    *   }
+    *)
+    *
+    *@Annotations\View(
+    *   template = "ContactBundle:Contact:editContact.html.twig",
+    *   templateVar = "form"
+    *)
+    *
+    *@param Request $request the request object
+    *@param int     $id      the contact id
+    *
+    *@return FormTypeInterface|View
+    *
+    *@throws NotFoundHttpException when page not exist
+    */
+
+    public function putContactAction(Request $request, $id)
+    {
+        try{
+            if( !($contact = $this->container->get('contact_blog.contact.handler')->get($id)))
+            {
+                $statusCode = Codes::HTTP_CREATED;
+                $contact = $this->container->get('contact_blog.contact.handler')->post
+                (
+                    $request->request->all()
+                );
+            }else{
+                $statusCode = Codes::HTTP_NO_CONTENT;
+
+                $contact=$this->container->get('contact_blog.contact.handler')->put
+                (
+                    $contact,
+                    $request->request->all()
+                );
+            }
+
+            $routeOptions = array(
+                'id'=> $contact->getId(),
+                '_format'=> $request->get('_format')
+            );
+
+            return $this->routeRedirectView('api_1_get_contact', $routeOptions, $statusCode);
+
+        }catch (InvalidFormException $exception)
+        {
+            return $exception->getForm();
+        }
+    }
+
+     /**
+    *Delete Contact 
+    *
+    *@ApiDoc(
+    *   resource = true,
+    *   statusCodes = {
+    *       204= "Returned when successful",
+    *       400= "Returned when the form has errors"
+    *   }
+    *)
+    *
+    *
+    *@param Request $request the request object
+    *@param int     $id      the contact id
+    *
+    *
+    */
+    public function deleteContactAction(Request $request, $id)
+    {
+        $contact = $this->getOr404($id);
+        $this->container->get('contact_blog.contact.handler')->delete($contact);
+
+        return $this->routeRedirectView('api_1_get_contacts', array(),Codes::HTTP_NO_CONTENT );
+    }
+
+    /**
+    *Removes the contacr
+    *
+    *@param Request $request the request object
+    *@param int     $id      the contact id
+    *
+    *@return RoutedRedirectView
+    */
+    public function removeContactAction(Request $request, $id)
+    {
+        return $this->deleteContactAction($request, $id);
+    }
+
+   
 
     /**
 	* Fetch a Contact or throw an 404 Exception.

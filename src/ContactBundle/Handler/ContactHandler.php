@@ -43,7 +43,23 @@ class ContactHandler implements ContactHandlerInterface
 		return $this->processForm($contact, $parameters, 'POST');
 	}
 
-	public function processForm(ContactInterface $contact, array $parameters, $method = "PUT")
+	public function put(ContactInterface $contact, array $parameters)
+	{
+		return $this->processForm($contact, $parameters, 'PUT');
+	}
+
+	public function patch(ContactInterface $contact, array $parameters)
+	{
+		return $this->processForm($contact, $parameters, 'PATCH');
+	}
+
+	public function delete(ContactInterface $contact)
+	{
+		$this->om->remove($contact);
+		$this->om->flush($contact);
+	}
+
+	public function processForm(ContactInterface $contact, array $parameters, $method)
 	{
 		$form = $this->formFactory->create(new ContactType(), $contact, array('method'=> $method));
 		$form->submit($parameters, 'PATCH' !==$method);

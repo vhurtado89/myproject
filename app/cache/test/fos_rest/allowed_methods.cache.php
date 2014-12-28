@@ -6,6 +6,12 @@
   'api_1_get_contact' => 
   array (
     0 => 'GET',
+    1 => 'PUT',
+  ),
+  'api_1_put_contact' => 
+  array (
+    0 => 'GET',
+    1 => 'PUT',
   ),
   'api_1_get_contacts' => 
   array (
