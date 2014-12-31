@@ -1,13 +1,13 @@
 <?php return array (
-  'api_1_remove_contact' => 
-  array (
-    0 => 'GET',
-  ),
   'api_1_new_contact' => 
   array (
     0 => 'GET',
   ),
   'api_1_edit_contact' => 
+  array (
+    0 => 'GET',
+  ),
+  'api_1_remove_contact' => 
   array (
     0 => 'GET',
   ),
@@ -38,5 +38,9 @@
   array (
     0 => 'GET',
     1 => 'POST',
+  ),
+  'nelmio_api_doc_index' => 
+  array (
+    0 => 'GET',
   ),
 );

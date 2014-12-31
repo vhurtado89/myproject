@@ -1,13 +1,45 @@
-<h1>{{ contact.firstname }} {{ contact.lastname}}</h1>
-<p>
-{{ contact.email1 }}
-{{ contact.email2 }}
-{{ contact.address1 }}
-{{ contact.address2 }}
-{{ contact.city }}
-{{ contact.state }}
-{{ contact.zip }}
-{{ contact.phone1 }}
-{{ contact.phone2 }}
+{% extends 'ContactBundle::layout.html.twig' %}
+{% block body %}
+	<h1>{{ contact.firstname }} {{ contact.lastname}}</h1>
 
-</p>
+	<table>
+		<tr>
+			<td>Email 1 : </td>
+			<td> {{ contact.email1 }}</td>
+		</tr>
+		<tr>
+			<td>Eamil 2 :</td>
+			<td>{{ contact.email2 }}</td>
+		</tr>
+		<tr>
+			<td>Address 1 :</td>
+			<td>{{ contact.address1 }}</td>
+		</tr>
+		<tr>
+			<td>Address 2 :</td>
+			<td>{{ contact.address2 }}</td>
+		</tr>
+		<tr>
+			<td>City :</td>
+			<td>{{ contact.city }}</td>
+		</tr>
+		<tr>
+			<td>State : </td>
+			<td>{{ contact.state }}</td>
+		</tr>
+		<tr>
+			<td>Zip : </td>
+			<td>{{ contact.zip }}</td>
+		</tr>
+		<tr>
+			<td>Phone 1 :</td>
+			<td>{{ contact.phone1 }}</td>
+		</tr>
+		<tr>
+			<td>Phone 2 :</td>
+			<td>{{ contact.phone2 }}</td>
+		</tr>
+	</table>
+	
+<a href = "{{ path('api_1_get_contacts') }}"> Go Back</a>
+{% endblock %}

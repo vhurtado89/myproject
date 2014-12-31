@@ -5,3 +5,6 @@ contact_blog:
     type: rest
     prefix: /api
     resource: "@ContactBundle/Resources/config/routes.yml"
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
+    prefix: /api/doc

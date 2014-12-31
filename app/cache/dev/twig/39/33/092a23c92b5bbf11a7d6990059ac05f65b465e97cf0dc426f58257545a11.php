@@ -7,47 +7,68 @@ class __TwigTemplate_3933092a23c92b5bbf11a7d6990059ac05f65b465e97cf0dc426f582575
     {
         parent::__construct($env);
 
-        $this->parent = false;
+        // line 1
+        try {
+            $this->parent = $this->env->loadTemplate("ContactBundle::layout.html.twig");
+        } catch (Twig_Error_Loader $e) {
+            $e->setTemplateFile($this->getTemplateName());
+            $e->setTemplateLine(1);
+
+            throw $e;
+        }
 
         $this->blocks = array(
+            'body' => array($this, 'block_body'),
             'content' => array($this, 'block_content'),
         );
     }
 
+    protected function doGetParent(array $context)
+    {
+        return "ContactBundle::layout.html.twig";
+    }
+
     protected function doDisplay(array $context, array $blocks = array())
     {
-        // line 1
+        $this->parent->display($context, array_merge($this->blocks, $blocks));
+    }
+
+    // line 3
+    public function block_body($context, array $blocks = array())
+    {
+        // line 4
+        echo "\t";
         $this->displayBlock('content', $context, $blocks);
     }
 
     public function block_content($context, array $blocks = array())
     {
         echo "\t
-\t<h1>Contact Form</h1>
-\t";
-        // line 3
-        if ((!(null === (isset($context["form"]) ? $context["form"] : $this->getContext($context, "form"))))) {
-            // line 4
-            echo "\t\t<form action=\"";
-            echo twig_escape_filter($this->env, $this->env->getExtension('routing')->getUrl("api_1_put_contact", array("id" => (isset($context["id"]) ? $context["id"] : $this->getContext($context, "id")))), "html", null, true);
-            echo "\" method=\"POST\" ";
+\t\t<h1>Contact Form</h1>
+\t\t";
+        // line 6
+        if ( !(null === (isset($context["form"]) ? $context["form"] : $this->getContext($context, "form")))) {
+            // line 7
+            echo "\t\t\t<form action=\"";
+            echo twig_escape_filter($this->env, $this->env->getExtension('routing')->getUrl("api_1_put_contact", array("id" => $this->getAttribute((isset($context["contact"]) ? $context["contact"] : $this->getContext($context, "contact")), "id", array()))), "html", null, true);
+            echo "\" method=\"PUT\" ";
             echo $this->env->getExtension('form')->renderer->searchAndRenderBlock((isset($context["form"]) ? $context["form"] : $this->getContext($context, "form")), 'enctype');
             echo ">
 
-\t\t\t";
-            // line 6
+\t\t\t\t";
+            // line 9
             echo $this->env->getExtension('form')->renderer->searchAndRenderBlock((isset($context["form"]) ? $context["form"] : $this->getContext($context, "form")), 'widget');
-            echo "\t\t
-\t\t\t\t
-\t\t\t<input type=\"submit\" value=\"submit\">
-\t\t\t
-\t\t\t";
-            // line 10
-            echo             $this->env->getExtension('form')->renderer->renderBlock((isset($context["form"]) ? $context["form"] : $this->getContext($context, "form")), 'form_end');
             echo "
-\t\t</form>
-\t";
+
+\t\t\t\t<input type=\"submit\" value=\"submit\">
+
+\t\t\t</form>
+\t\t";
         }
+        // line 15
+        echo "
+
+\t";
     }
 
     public function getTemplateName()
@@ -55,8 +76,13 @@ class __TwigTemplate_3933092a23c92b5bbf11a7d6990059ac05f65b465e97cf0dc426f582575
         return "ContactBundle:Contact:editContact.html.twig";
     }
 
+    public function isTraitable()
+    {
+        return false;
+    }
+
     public function getDebugInfo()
     {
-        return array (  46 => 10,  39 => 6,  31 => 4,  29 => 3,  20 => 1,);
+        return array (  69 => 15,  60 => 9,  52 => 7,  50 => 6,  40 => 4,  37 => 3,  11 => 1,);
     }
 }

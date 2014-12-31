@@ -2,10 +2,10 @@ ContactBundle\Entity\Contact:
     properties:
         firstname:
             - NotBlank: ~
-            - NotNull: ~
         lastname:
             - NotBlank: ~
-            - NotNull: ~
         email1:
             - NotBlank: ~
-            - NotNull: ~
+            - Email: 
+                message: The email is not a valid email.
+                checkMX: true 

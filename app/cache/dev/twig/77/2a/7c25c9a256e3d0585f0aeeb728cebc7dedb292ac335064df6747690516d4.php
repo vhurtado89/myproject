@@ -35,24 +35,69 @@ class __TwigTemplate_772a7c25c9a256e3d0585f0aeeb728cebc7dedb292ac335064df6747690
         echo "        <link rel=\"icon\" type=\"image/x-icon\" href=\"";
         echo twig_escape_filter($this->env, $this->env->getExtension('assets')->getAssetUrl("favicon.ico"), "html", null, true);
         echo "\" />
+        <meta name=\"robots\" content=\"noindex,nofollow\" />
+        <title>Symfony Configuration</title>
+        <link rel=\"stylesheet\" href=\"../../bundles/framework/css/structure.css\" media=\"all\" />
+        <link rel=\"stylesheet\" href=\"../../bundles/framework/css/body.css\" media=\"all\" />
+        <link rel=\"stylesheet\" href=\"../../bundles/sensiodistribution/webconfigurator/css/install.css\" media=\"all\" />
     </head>
     <body>
-        ";
-        // line 10
+        <div id=\"content\">
+            <div class=\"header clear-fix\">
+                <div class=\"header-logo\">
+                    <img src=\"../../bundles/framework/images/logo_symfony.png\" alt=\"Symfony\" />
+                </div>
+
+                <div class=\"search\">
+                  <form method=\"get\" action=\"http://symfony.com/search\">
+                    <div class=\"form-row\">
+
+                      <label for=\"search-id\">
+                          <img src=\"../../bundles/framework/images/grey_magnifier.png\" alt=\"Search on Symfony website\" />
+                      </label>
+
+                      <input name=\"q\" id=\"search-id\" type=\"search\" placeholder=\"Search on Symfony website\" />
+
+                      <button type=\"submit\" class=\"sf-button\">
+                          <span class=\"border-l\">
+                            <span class=\"border-r\">
+                                <span class=\"btn-bg\">OK</span>
+                            </span>
+                        </span>
+                      </button>
+                    </div>
+                   </form>
+                </div>
+            </div>
+
+            <div class=\"sf-reset\">
+                <div class=\"block\">
+                    ";
+        // line 45
         $this->displayBlock('body', $context, $blocks);
-        // line 11
-        echo "        ";
+        // line 46
+        echo "                </div>
+            </div>
+            <div class=\"version\">Symfony Standard Edition</div>
+        </div>
+
+       
+        ";
+        // line 52
         $this->displayBlock('javascripts', $context, $blocks);
-        // line 12
+        // line 53
         echo "    </body>
 </html>
+
+
+
 ";
     }
 
     // line 5
     public function block_title($context, array $blocks = array())
     {
-        echo "Welcome!";
+        echo "REST API";
     }
 
     // line 6
@@ -60,12 +105,12 @@ class __TwigTemplate_772a7c25c9a256e3d0585f0aeeb728cebc7dedb292ac335064df6747690
     {
     }
 
-    // line 10
+    // line 45
     public function block_body($context, array $blocks = array())
     {
     }
 
-    // line 11
+    // line 52
     public function block_javascripts($context, array $blocks = array())
     {
     }
@@ -82,6 +127,6 @@ class __TwigTemplate_772a7c25c9a256e3d0585f0aeeb728cebc7dedb292ac335064df6747690
 
     public function getDebugInfo()
     {
-        return array (  69 => 11,  64 => 10,  59 => 6,  53 => 5,  47 => 12,  44 => 11,  42 => 10,  35 => 7,  33 => 6,  29 => 5,  23 => 1,);
+        return array (  114 => 52,  109 => 45,  104 => 6,  98 => 5,  89 => 53,  87 => 52,  79 => 46,  77 => 45,  35 => 7,  33 => 6,  29 => 5,  23 => 1,);
     }
 }

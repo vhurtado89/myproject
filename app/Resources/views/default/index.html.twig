@@ -1,5 +1,13 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    Homepage.
+    <p>For the purpose of this project there are only two links on this page. The first will take you to the contacts page where you can view all the contacts. The second link will take you to the API docs page.  </p>
+
+    <p>
+    	<a href = "{{ path('api_1_get_contacts') }}"> Go to Contacts Rest API</a>
+    </p>
+
+    <p>
+    	<a href="{{ path('nelmio_api_doc_index') }}"> Go to API DOCS</a>
+    </p>
 {% endblock %}

@@ -7,7 +7,15 @@ class __TwigTemplate_24bc878da04929c5fd1b22b5985178cc0a1ca7b3b54953ca61413465f73
     {
         parent::__construct($env);
 
-        $this->parent = $this->env->loadTemplate("TwigBundle::layout.html.twig");
+        // line 1
+        try {
+            $this->parent = $this->env->loadTemplate("TwigBundle::layout.html.twig");
+        } catch (Twig_Error_Loader $e) {
+            $e->setTemplateFile($this->getTemplateName());
+            $e->setTemplateLine(1);
+
+            throw $e;
+        }
 
         $this->blocks = array(
             'head' => array($this, 'block_head'),
@@ -70,6 +78,6 @@ class __TwigTemplate_24bc878da04929c5fd1b22b5985178cc0a1ca7b3b54953ca61413465f73
 
     public function getDebugInfo()
     {
-        return array (  57 => 12,  54 => 11,  43 => 8,  40 => 7,  33 => 4,  30 => 3,);
+        return array (  65 => 12,  62 => 11,  51 => 8,  48 => 7,  41 => 4,  38 => 3,  11 => 1,);
     }
 }

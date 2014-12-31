@@ -21,6 +21,7 @@
       <parameter key="FOSRestBundle">FOS\RestBundle\FOSRestBundle</parameter>
       <parameter key="ContactBundle">ContactBundle\ContactBundle</parameter>
       <parameter key="NelmioApiDocBundle">Nelmio\ApiDocBundle\NelmioApiDocBundle</parameter>
+      <parameter key="RaulFraileLadybugBundle">RaulFraile\Bundle\LadybugBundle\RaulFraileLadybugBundle</parameter>
       <parameter key="DebugBundle">Symfony\Bundle\DebugBundle\DebugBundle</parameter>
       <parameter key="WebProfilerBundle">Symfony\Bundle\WebProfilerBundle\WebProfilerBundle</parameter>
       <parameter key="SensioDistributionBundle">Sensio\Bundle\DistributionBundle\SensioDistributionBundle</parameter>
@@ -368,17 +369,21 @@
     <parameter key="monolog.handler.raven.class">Monolog\Handler\RavenHandler</parameter>
     <parameter key="monolog.handler.newrelic.class">Monolog\Handler\NewRelicHandler</parameter>
     <parameter key="monolog.handler.hipchat.class">Monolog\Handler\HipChatHandler</parameter>
+    <parameter key="monolog.handler.slack.class">Monolog\Handler\SlackHandler</parameter>
     <parameter key="monolog.handler.cube.class">Monolog\Handler\CubeHandler</parameter>
     <parameter key="monolog.handler.amqp.class">Monolog\Handler\AmqpHandler</parameter>
     <parameter key="monolog.handler.error_log.class">Monolog\Handler\ErrorLogHandler</parameter>
     <parameter key="monolog.handler.loggly.class">Monolog\Handler\LogglyHandler</parameter>
     <parameter key="monolog.handler.logentries.class">Monolog\Handler\LogEntriesHandler</parameter>
+    <parameter key="monolog.handler.whatfailuregroup.class">Monolog\Handler\WhatFailureGroupHandler</parameter>
     <parameter key="monolog.activation_strategy.not_found.class">Symfony\Bundle\MonologBundle\NotFoundActivationStrategy</parameter>
     <parameter key="monolog.handler.fingers_crossed.class">Monolog\Handler\FingersCrossedHandler</parameter>
     <parameter key="monolog.handler.fingers_crossed.error_level_activation_strategy.class">Monolog\Handler\FingersCrossed\ErrorLevelActivationStrategy</parameter>
     <parameter key="monolog.handler.filter.class">Monolog\Handler\FilterHandler</parameter>
     <parameter key="monolog.handler.mongo.class">Monolog\Handler\MongoDBHandler</parameter>
     <parameter key="monolog.mongo.client.class">MongoClient</parameter>
+    <parameter key="monolog.handler.elasticsearch.class">Monolog\Handler\ElasticSearchHandler</parameter>
+    <parameter key="monolog.elastica.client.class">Elastica\Client</parameter>
     <parameter key="monolog.swift_mailer.handlers" type="collection"/>
     <parameter key="monolog.handlers_to_channels" type="collection">
       <parameter key="monolog.handler.console_very_verbose" type="collection">
@@ -730,6 +735,16 @@
     <parameter key="nelmio_api_doc.extractor.handler.phpdoc.class">Nelmio\ApiDocBundle\Extractor\Handler\PhpDocHandler</parameter>
     <parameter key="nelmio_api_doc.request_listener.parameter">_doc</parameter>
     <parameter key="nelmio_api_doc.event_listener.request.class">Nelmio\ApiDocBundle\EventListener\RequestListener</parameter>
+    <parameter key="ladybug.options" type="collection">
+      <parameter key="extra_helpers" type="collection">
+        <parameter>RaulFraile\Bundle\LadybugBundle\DataCollector\LadybugDataCollector:log</parameter>
+      </parameter>
+      <parameter key="theme">modern</parameter>
+      <parameter key="expanded">false</parameter>
+      <parameter key="silenced">false</parameter>
+      <parameter key="array_max_nesting_level">9</parameter>
+      <parameter key="object_max_nesting_level">3</parameter>
+    </parameter>
     <parameter key="web_profiler.controller.profiler.class">Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController</parameter>
     <parameter key="web_profiler.controller.router.class">Symfony\Bundle\WebProfilerBundle\Controller\RouterController</parameter>
     <parameter key="web_profiler.controller.exception.class">Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController</parameter>
@@ -795,6 +810,10 @@
       <parameter key="data_collector.doctrine" type="collection">
         <parameter>db</parameter>
         <parameter>@Doctrine/Collector/db.html.twig</parameter>
+      </parameter>
+      <parameter key="data_collector.ladybug_data_collector" type="collection">
+        <parameter>ladybug</parameter>
+        <parameter>RaulFraileLadybugBundle:Collector:ladybug</parameter>
       </parameter>
       <parameter key="data_collector.dump" type="collection">
         <parameter>dump</parameter>
@@ -1659,6 +1678,9 @@
         </argument>
       </call>
       <call method="add">
+        <argument type="service" id="data_collector.ladybug_data_collector"/>
+      </call>
+      <call method="add">
         <argument type="service" id="data_collector.dump"/>
       </call>
     </service>
@@ -1815,38 +1837,6 @@
         <argument>0</argument>
       </call>
       <call method="addListenerService">
-        <argument>console.command</argument>
-        <argument type="collection">
-          <argument>monolog.handler.console</argument>
-          <argument>onCommand</argument>
-        </argument>
-        <argument>255</argument>
-      </call>
-      <call method="addListenerService">
-        <argument>console.terminate</argument>
-        <argument type="collection">
-          <argument>monolog.handler.console</argument>
-          <argument>onTerminate</argument>
-        </argument>
-        <argument>-255</argument>
-      </call>
-      <call method="addListenerService">
-        <argument>console.command</argument>
-        <argument type="collection">
-          <argument>monolog.handler.console_very_verbose</argument>
-          <argument>onCommand</argument>
-        </argument>
-        <argument>255</argument>
-      </call>
-      <call method="addListenerService">
-        <argument>console.terminate</argument>
-        <argument type="collection">
-          <argument>monolog.handler.console_very_verbose</argument>
-          <argument>onTerminate</argument>
-        </argument>
-        <argument>-255</argument>
-      </call>
-      <call method="addListenerService">
         <argument>kernel.request</argument>
         <argument type="collection">
           <argument>assetic.request_listener</argument>
@@ -1910,6 +1900,14 @@
         </argument>
         <argument>0</argument>
       </call>
+      <call method="addListenerService">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument>ladybug.event_listener.ladybug_config_listener</argument>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
       <call method="addSubscriberService">
         <argument>response_listener</argument>
         <argument>Symfony\Component\HttpKernel\EventListener\ResponseListener</argument>
@@ -1965,6 +1963,14 @@
       <call method="addSubscriberService">
         <argument>twig.exception_listener</argument>
         <argument>Symfony\Component\HttpKernel\EventListener\ExceptionListener</argument>
+      </call>
+      <call method="addSubscriberService">
+        <argument>monolog.handler.console</argument>
+        <argument>Symfony\Bridge\Monolog\Handler\ConsoleHandler</argument>
+      </call>
+      <call method="addSubscriberService">
+        <argument>monolog.handler.console_very_verbose</argument>
+        <argument>Symfony\Bridge\Monolog\Handler\ConsoleHandler</argument>
       </call>
       <call method="addSubscriberService">
         <argument>swiftmailer.email_sender.listener</argument>
@@ -2519,6 +2525,14 @@
       </call>
       <call method="addExtension">
         <argument type="service">
+          <service class="RaulFraile\Bundle\LadybugBundle\Twig\Extension\LadybugExtension" public="false">
+            <tag name="twig.extension"/>
+            <argument type="service" id="ladybug.dumper"/>
+          </service>
+        </argument>
+      </call>
+      <call method="addExtension">
+        <argument type="service">
           <service class="Symfony\Bridge\Twig\Extension\DumpExtension" public="false">
             <tag name="twig.extension"/>
             <argument type="service" id="var_dumper.cloner"/>
@@ -2559,10 +2573,10 @@
       <argument>/home/ubuntu/Interview/myproject/app/logs/dev.log</argument>
       <argument>100</argument>
       <argument>true</argument>
+      <argument>null</argument>
     </service>
     <service id="monolog.handler.console" class="Symfony\Bridge\Monolog\Handler\ConsoleHandler">
-      <tag name="kernel.event_listener" event="console.command" method="onCommand" priority="255"/>
-      <tag name="kernel.event_listener" event="console.terminate" method="onTerminate" priority="-255"/>
+      <tag name="kernel.event_subscriber"/>
       <argument>null</argument>
       <argument>false</argument>
       <argument type="collection">
@@ -2573,8 +2587,7 @@
       </argument>
     </service>
     <service id="monolog.handler.console_very_verbose" class="Symfony\Bridge\Monolog\Handler\ConsoleHandler">
-      <tag name="kernel.event_listener" event="console.command" method="onCommand" priority="255"/>
-      <tag name="kernel.event_listener" event="console.terminate" method="onTerminate" priority="-255"/>
+      <tag name="kernel.event_subscriber"/>
       <argument>null</argument>
       <argument>false</argument>
       <argument type="collection">
@@ -3519,6 +3532,37 @@
       <argument type="service" id="nelmio_api_doc.formatter.html_formatter"/>
       <argument>_doc</argument>
     </service>
+    <service id="ladybug.dumper" class="Ladybug\Dumper">
+      <call method="setOptions">
+        <argument type="collection">
+          <argument key="extra_helpers" type="collection">
+            <argument>RaulFraile\Bundle\LadybugBundle\DataCollector\LadybugDataCollector:log</argument>
+          </argument>
+          <argument key="theme">modern</argument>
+          <argument key="expanded">false</argument>
+          <argument key="silenced">false</argument>
+          <argument key="array_max_nesting_level">9</argument>
+          <argument key="object_max_nesting_level">3</argument>
+        </argument>
+      </call>
+    </service>
+    <service id="data_collector.ladybug_data_collector" class="RaulFraile\Bundle\LadybugBundle\DataCollector\LadybugDataCollector">
+      <tag name="data_collector" template="RaulFraileLadybugBundle:Collector:ladybug" id="ladybug"/>
+      <argument type="service" id="ladybug.dumper"/>
+    </service>
+    <service id="ladybug.event_listener.ladybug_config_listener" class="RaulFraile\Bundle\LadybugBundle\EventListener\LadybugConfigListener">
+      <tag name="kernel.event_listener" event="kernel.request" method="onKernelRequest"/>
+      <argument type="collection">
+        <argument key="extra_helpers" type="collection">
+          <argument>RaulFraile\Bundle\LadybugBundle\DataCollector\LadybugDataCollector:log</argument>
+        </argument>
+        <argument key="theme">modern</argument>
+        <argument key="expanded">false</argument>
+        <argument key="silenced">false</argument>
+        <argument key="array_max_nesting_level">9</argument>
+        <argument key="object_max_nesting_level">3</argument>
+      </argument>
+    </service>
     <service id="data_collector.dump" class="Symfony\Component\HttpKernel\DataCollector\DumpDataCollector">
       <tag name="data_collector" id="dump" template="@Debug/Profiler/dump.html.twig"/>
       <argument type="service" id="debug.stopwatch" on-invalid="ignore"/>
@@ -3593,6 +3637,10 @@
         <argument key="data_collector.doctrine" type="collection">
           <argument>db</argument>
           <argument>@Doctrine/Collector/db.html.twig</argument>
+        </argument>
+        <argument key="data_collector.ladybug_data_collector" type="collection">
+          <argument>ladybug</argument>
+          <argument>RaulFraileLadybugBundle:Collector:ladybug</argument>
         </argument>
         <argument key="data_collector.dump" type="collection">
           <argument>dump</argument>
@@ -3904,6 +3952,10 @@
         <argument>NelmioApiDoc</argument>
       </call>
       <call method="addPath">
+        <argument>/home/ubuntu/Interview/myproject/vendor/raulfraile/ladybug-bundle/RaulFraile/Bundle/LadybugBundle/Resources/views</argument>
+        <argument>RaulFraileLadybug</argument>
+      </call>
+      <call method="addPath">
         <argument>/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/views</argument>
         <argument>Debug</argument>
       </call>
@@ -4015,6 +4067,7 @@
                       <argument key="FOS\RestBundle">/home/ubuntu/Interview/myproject/vendor/friendsofsymfony/rest-bundle/FOS/RestBundle/Resources/config/serializer</argument>
                       <argument key="ContactBundle">/home/ubuntu/Interview/myproject/src/ContactBundle/Resources/config/serializer</argument>
                       <argument key="Nelmio\ApiDocBundle">/home/ubuntu/Interview/myproject/vendor/nelmio/api-doc-bundle/Nelmio/ApiDocBundle/Resources/config/serializer</argument>
+                      <argument key="RaulFraile\Bundle\LadybugBundle">/home/ubuntu/Interview/myproject/vendor/raulfraile/ladybug-bundle/RaulFraile/Bundle/LadybugBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\DebugBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\WebProfilerBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/WebProfilerBundle/Resources/config/serializer</argument>
                       <argument key="Sensio\Bundle\DistributionBundle">/home/ubuntu/Interview/myproject/vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/config/serializer</argument>
@@ -4042,6 +4095,7 @@
                       <argument key="FOS\RestBundle">/home/ubuntu/Interview/myproject/vendor/friendsofsymfony/rest-bundle/FOS/RestBundle/Resources/config/serializer</argument>
                       <argument key="ContactBundle">/home/ubuntu/Interview/myproject/src/ContactBundle/Resources/config/serializer</argument>
                       <argument key="Nelmio\ApiDocBundle">/home/ubuntu/Interview/myproject/vendor/nelmio/api-doc-bundle/Nelmio/ApiDocBundle/Resources/config/serializer</argument>
+                      <argument key="RaulFraile\Bundle\LadybugBundle">/home/ubuntu/Interview/myproject/vendor/raulfraile/ladybug-bundle/RaulFraile/Bundle/LadybugBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\DebugBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\WebProfilerBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/WebProfilerBundle/Resources/config/serializer</argument>
                       <argument key="Sensio\Bundle\DistributionBundle">/home/ubuntu/Interview/myproject/vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/config/serializer</argument>
@@ -4069,6 +4123,7 @@
                       <argument key="FOS\RestBundle">/home/ubuntu/Interview/myproject/vendor/friendsofsymfony/rest-bundle/FOS/RestBundle/Resources/config/serializer</argument>
                       <argument key="ContactBundle">/home/ubuntu/Interview/myproject/src/ContactBundle/Resources/config/serializer</argument>
                       <argument key="Nelmio\ApiDocBundle">/home/ubuntu/Interview/myproject/vendor/nelmio/api-doc-bundle/Nelmio/ApiDocBundle/Resources/config/serializer</argument>
+                      <argument key="RaulFraile\Bundle\LadybugBundle">/home/ubuntu/Interview/myproject/vendor/raulfraile/ladybug-bundle/RaulFraile/Bundle/LadybugBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\DebugBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/config/serializer</argument>
                       <argument key="Symfony\Bundle\WebProfilerBundle">/home/ubuntu/Interview/myproject/vendor/symfony/symfony/src/Symfony/Bundle/WebProfilerBundle/Resources/config/serializer</argument>
                       <argument key="Sensio\Bundle\DistributionBundle">/home/ubuntu/Interview/myproject/vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/config/serializer</argument>
@@ -4208,6 +4263,7 @@
     <service id="fos_rest.templating" alias="templating"/>
     <service id="fos_rest.serializer" alias="jms_serializer"/>
     <service id="fos_rest.inflector" alias="fos_rest.inflector.doctrine"/>
+    <service id="ladybug" alias="data_collector.ladybug_data_collector"/>
     <service id="sensio.distribution.webconfigurator" alias="sensio_distribution.webconfigurator"/>
     <service id="console.command.sensiolabs_security_command_securitycheckercommand" alias="sensio_distribution.security_checker.command"/>
   </services>

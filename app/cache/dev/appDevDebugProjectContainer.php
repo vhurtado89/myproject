@@ -47,6 +47,7 @@ class appDevDebugProjectContainer extends Container
                 'FOSRestBundle' => 'FOS\\RestBundle\\FOSRestBundle',
                 'ContactBundle' => 'ContactBundle\\ContactBundle',
                 'NelmioApiDocBundle' => 'Nelmio\\ApiDocBundle\\NelmioApiDocBundle',
+                'RaulFraileLadybugBundle' => 'RaulFraile\\Bundle\\LadybugBundle\\RaulFraileLadybugBundle',
                 'DebugBundle' => 'Symfony\\Bundle\\DebugBundle\\DebugBundle',
                 'WebProfilerBundle' => 'Symfony\\Bundle\\WebProfilerBundle\\WebProfilerBundle',
                 'SensioDistributionBundle' => 'Sensio\\Bundle\\DistributionBundle\\SensioDistributionBundle',
@@ -400,17 +401,21 @@ class appDevDebugProjectContainer extends Container
             'monolog.handler.raven.class' => 'Monolog\\Handler\\RavenHandler',
             'monolog.handler.newrelic.class' => 'Monolog\\Handler\\NewRelicHandler',
             'monolog.handler.hipchat.class' => 'Monolog\\Handler\\HipChatHandler',
+            'monolog.handler.slack.class' => 'Monolog\\Handler\\SlackHandler',
             'monolog.handler.cube.class' => 'Monolog\\Handler\\CubeHandler',
             'monolog.handler.amqp.class' => 'Monolog\\Handler\\AmqpHandler',
             'monolog.handler.error_log.class' => 'Monolog\\Handler\\ErrorLogHandler',
             'monolog.handler.loggly.class' => 'Monolog\\Handler\\LogglyHandler',
             'monolog.handler.logentries.class' => 'Monolog\\Handler\\LogEntriesHandler',
+            'monolog.handler.whatfailuregroup.class' => 'Monolog\\Handler\\WhatFailureGroupHandler',
             'monolog.activation_strategy.not_found.class' => 'Symfony\\Bundle\\MonologBundle\\NotFoundActivationStrategy',
             'monolog.handler.fingers_crossed.class' => 'Monolog\\Handler\\FingersCrossedHandler',
             'monolog.handler.fingers_crossed.error_level_activation_strategy.class' => 'Monolog\\Handler\\FingersCrossed\\ErrorLevelActivationStrategy',
             'monolog.handler.filter.class' => 'Monolog\\Handler\\FilterHandler',
             'monolog.handler.mongo.class' => 'Monolog\\Handler\\MongoDBHandler',
             'monolog.mongo.client.class' => 'MongoClient',
+            'monolog.handler.elasticsearch.class' => 'Monolog\\Handler\\ElasticSearchHandler',
+            'monolog.elastica.client.class' => 'Elastica\\Client',
             'monolog.swift_mailer.handlers' => array(
 
             ),
@@ -780,6 +785,16 @@ class appDevDebugProjectContainer extends Container
             'nelmio_api_doc.extractor.handler.phpdoc.class' => 'Nelmio\\ApiDocBundle\\Extractor\\Handler\\PhpDocHandler',
             'nelmio_api_doc.request_listener.parameter' => '_doc',
             'nelmio_api_doc.event_listener.request.class' => 'Nelmio\\ApiDocBundle\\EventListener\\RequestListener',
+            'ladybug.options' => array(
+                'extra_helpers' => array(
+                    0 => 'RaulFraile\\Bundle\\LadybugBundle\\DataCollector\\LadybugDataCollector:log',
+                ),
+                'theme' => 'modern',
+                'expanded' => false,
+                'silenced' => false,
+                'array_max_nesting_level' => 9,
+                'object_max_nesting_level' => 3,
+            ),
             'web_profiler.controller.profiler.class' => 'Symfony\\Bundle\\WebProfilerBundle\\Controller\\ProfilerController',
             'web_profiler.controller.router.class' => 'Symfony\\Bundle\\WebProfilerBundle\\Controller\\RouterController',
             'web_profiler.controller.exception.class' => 'Symfony\\Bundle\\WebProfilerBundle\\Controller\\ExceptionController',
@@ -846,6 +861,10 @@ class appDevDebugProjectContainer extends Container
                     0 => 'db',
                     1 => '@Doctrine/Collector/db.html.twig',
                 ),
+                'data_collector.ladybug_data_collector' => array(
+                    0 => 'ladybug',
+                    1 => 'RaulFraileLadybugBundle:Collector:ladybug',
+                ),
                 'data_collector.dump' => array(
                     0 => 'dump',
                     1 => '@Debug/Profiler/dump.html.twig',
@@ -879,6 +898,7 @@ class appDevDebugProjectContainer extends Container
             'data_collector.dump' => 'getDataCollector_DumpService',
             'data_collector.form' => 'getDataCollector_FormService',
             'data_collector.form.extractor' => 'getDataCollector_Form_ExtractorService',
+            'data_collector.ladybug_data_collector' => 'getDataCollector_LadybugDataCollectorService',
             'data_collector.request' => 'getDataCollector_RequestService',
             'data_collector.router' => 'getDataCollector_RouterService',
             'debug.controller_resolver' => 'getDebug_ControllerResolverService',
@@ -999,6 +1019,8 @@ class appDevDebugProjectContainer extends Container
             'jms_serializer.xml_serialization_visitor' => 'getJmsSerializer_XmlSerializationVisitorService',
             'jms_serializer.yaml_serialization_visitor' => 'getJmsSerializer_YamlSerializationVisitorService',
             'kernel' => 'getKernelService',
+            'ladybug.dumper' => 'getLadybug_DumperService',
+            'ladybug.event_listener.ladybug_config_listener' => 'getLadybug_EventListener_LadybugConfigListenerService',
             'locale_listener' => 'getLocaleListenerService',
             'logger' => 'getLoggerService',
             'monolog.handler.console' => 'getMonolog_Handler_ConsoleService',
@@ -1161,6 +1183,7 @@ class appDevDebugProjectContainer extends Container
             'fos_rest.router' => 'router',
             'fos_rest.serializer' => 'jms_serializer',
             'fos_rest.templating' => 'templating',
+            'ladybug' => 'data_collector.ladybug_data_collector',
             'mailer' => 'swiftmailer.mailer.default',
             'sensio.distribution.webconfigurator' => 'sensio_distribution.webconfigurator',
             'serializer' => 'jms_serializer',
@@ -1344,6 +1367,19 @@ class appDevDebugProjectContainer extends Container
     }
 
     /**
+     * Gets the 'data_collector.ladybug_data_collector' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \RaulFraile\Bundle\LadybugBundle\DataCollector\LadybugDataCollector A RaulFraile\Bundle\LadybugBundle\DataCollector\LadybugDataCollector instance.
+     */
+    protected function getDataCollector_LadybugDataCollectorService()
+    {
+        return $this->services['data_collector.ladybug_data_collector'] = new \RaulFraile\Bundle\LadybugBundle\DataCollector\LadybugDataCollector($this->get('ladybug.dumper'));
+    }
+
+    /**
      * Gets the 'data_collector.request' service.
      *
      * This service is shared.
@@ -1421,10 +1457,6 @@ class appDevDebugProjectContainer extends Container
         $this->services['debug.event_dispatcher'] = $instance = new \Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher(new \Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher($this), $this->get('debug.stopwatch'), $this->get('monolog.logger.event', ContainerInterface::NULL_ON_INVALID_REFERENCE));
 
         $instance->addListenerService('kernel.controller', array(0 => 'data_collector.router', 1 => 'onKernelController'), 0);
-        $instance->addListenerService('console.command', array(0 => 'monolog.handler.console', 1 => 'onCommand'), 255);
-        $instance->addListenerService('console.terminate', array(0 => 'monolog.handler.console', 1 => 'onTerminate'), -255);
-        $instance->addListenerService('console.command', array(0 => 'monolog.handler.console_very_verbose', 1 => 'onCommand'), 255);
-        $instance->addListenerService('console.terminate', array(0 => 'monolog.handler.console_very_verbose', 1 => 'onTerminate'), -255);
         $instance->addListenerService('kernel.request', array(0 => 'assetic.request_listener', 1 => 'onKernelRequest'), 0);
         $instance->addListenerService('kernel.controller', array(0 => 'fos_rest.view_response_listener', 1 => 'onKernelController'), -10);
         $instance->addListenerService('kernel.view', array(0 => 'fos_rest.view_response_listener', 1 => 'onKernelView'), 100);
@@ -1433,6 +1465,7 @@ class appDevDebugProjectContainer extends Container
         $instance->addListenerService('kernel.controller', array(0 => 'fos_rest.param_fetcher_listener', 1 => 'onKernelController'), 5);
         $instance->addListenerService('kernel.response', array(0 => 'fos_rest.allowed_methods_listener', 1 => 'onKernelResponse'), 0);
         $instance->addListenerService('kernel.request', array(0 => 'nelmio_api_doc.event_listener.request', 1 => 'onKernelRequest'), 0);
+        $instance->addListenerService('kernel.request', array(0 => 'ladybug.event_listener.ladybug_config_listener', 1 => 'onKernelRequest'), 0);
         $instance->addSubscriberService('response_listener', 'Symfony\\Component\\HttpKernel\\EventListener\\ResponseListener');
         $instance->addSubscriberService('streamed_response_listener', 'Symfony\\Component\\HttpKernel\\EventListener\\StreamedResponseListener');
         $instance->addSubscriberService('locale_listener', 'Symfony\\Component\\HttpKernel\\EventListener\\LocaleListener');
@@ -1447,6 +1480,8 @@ class appDevDebugProjectContainer extends Container
         $instance->addSubscriberService('security.firewall', 'Symfony\\Component\\Security\\Http\\Firewall');
         $instance->addSubscriberService('security.rememberme.response_listener', 'Symfony\\Component\\Security\\Http\\RememberMe\\ResponseListener');
         $instance->addSubscriberService('twig.exception_listener', 'Symfony\\Component\\HttpKernel\\EventListener\\ExceptionListener');
+        $instance->addSubscriberService('monolog.handler.console', 'Symfony\\Bridge\\Monolog\\Handler\\ConsoleHandler');
+        $instance->addSubscriberService('monolog.handler.console_very_verbose', 'Symfony\\Bridge\\Monolog\\Handler\\ConsoleHandler');
         $instance->addSubscriberService('swiftmailer.email_sender.listener', 'Symfony\\Bundle\\SwiftmailerBundle\\EventListener\\EmailSenderListener');
         $instance->addSubscriberService('sensio_framework_extra.controller.listener', 'Sensio\\Bundle\\FrameworkExtraBundle\\EventListener\\ControllerListener');
         $instance->addSubscriberService('sensio_framework_extra.converter.listener', 'Sensio\\Bundle\\FrameworkExtraBundle\\EventListener\\ParamConverterListener');
@@ -2879,7 +2914,7 @@ class appDevDebugProjectContainer extends Container
      */
     protected function getJmsSerializer_MetadataDriverService()
     {
-        $a = new \Metadata\Driver\FileLocator(array('Symfony\\Bundle\\FrameworkBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/FrameworkBundle/Resources/config/serializer'), 'Symfony\\Bundle\\SecurityBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/SecurityBundle/Resources/config/serializer'), 'Symfony\\Bundle\\TwigBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/TwigBundle/Resources/config/serializer'), 'Symfony\\Bundle\\MonologBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/monolog-bundle/Resources/config/serializer'), 'Symfony\\Bundle\\SwiftmailerBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/swiftmailer-bundle/Resources/config/serializer'), 'Symfony\\Bundle\\AsseticBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/assetic-bundle/Resources/config/serializer'), 'Doctrine\\Bundle\\DoctrineBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/doctrine/doctrine-bundle/Resources/config/serializer'), 'Sensio\\Bundle\\FrameworkExtraBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/sensio/framework-extra-bundle/Sensio/Bundle/FrameworkExtraBundle/Resources/config/serializer'), 'AppBundle' => (dirname(dirname(dirname(__DIR__))).'/src/AppBundle/Resources/config/serializer'), 'JMS\\SerializerBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/jms/serializer-bundle/JMS/SerializerBundle/Resources/config/serializer'), 'FOS\\RestBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/friendsofsymfony/rest-bundle/FOS/RestBundle/Resources/config/serializer'), 'ContactBundle' => (dirname(dirname(dirname(__DIR__))).'/src/ContactBundle/Resources/config/serializer'), 'Nelmio\\ApiDocBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/nelmio/api-doc-bundle/Nelmio/ApiDocBundle/Resources/config/serializer'), 'Symfony\\Bundle\\DebugBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/config/serializer'), 'Symfony\\Bundle\\WebProfilerBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/WebProfilerBundle/Resources/config/serializer'), 'Sensio\\Bundle\\DistributionBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/config/serializer'), 'Sensio\\Bundle\\GeneratorBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/sensio/generator-bundle/Sensio/Bundle/GeneratorBundle/Resources/config/serializer')));
+        $a = new \Metadata\Driver\FileLocator(array('Symfony\\Bundle\\FrameworkBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/FrameworkBundle/Resources/config/serializer'), 'Symfony\\Bundle\\SecurityBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/SecurityBundle/Resources/config/serializer'), 'Symfony\\Bundle\\TwigBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/TwigBundle/Resources/config/serializer'), 'Symfony\\Bundle\\MonologBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/monolog-bundle/Resources/config/serializer'), 'Symfony\\Bundle\\SwiftmailerBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/swiftmailer-bundle/Resources/config/serializer'), 'Symfony\\Bundle\\AsseticBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/assetic-bundle/Resources/config/serializer'), 'Doctrine\\Bundle\\DoctrineBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/doctrine/doctrine-bundle/Resources/config/serializer'), 'Sensio\\Bundle\\FrameworkExtraBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/sensio/framework-extra-bundle/Sensio/Bundle/FrameworkExtraBundle/Resources/config/serializer'), 'AppBundle' => (dirname(dirname(dirname(__DIR__))).'/src/AppBundle/Resources/config/serializer'), 'JMS\\SerializerBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/jms/serializer-bundle/JMS/SerializerBundle/Resources/config/serializer'), 'FOS\\RestBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/friendsofsymfony/rest-bundle/FOS/RestBundle/Resources/config/serializer'), 'ContactBundle' => (dirname(dirname(dirname(__DIR__))).'/src/ContactBundle/Resources/config/serializer'), 'Nelmio\\ApiDocBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/nelmio/api-doc-bundle/Nelmio/ApiDocBundle/Resources/config/serializer'), 'RaulFraile\\Bundle\\LadybugBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/raulfraile/ladybug-bundle/RaulFraile/Bundle/LadybugBundle/Resources/config/serializer'), 'Symfony\\Bundle\\DebugBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/config/serializer'), 'Symfony\\Bundle\\WebProfilerBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/WebProfilerBundle/Resources/config/serializer'), 'Sensio\\Bundle\\DistributionBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/config/serializer'), 'Sensio\\Bundle\\GeneratorBundle' => (dirname(dirname(dirname(__DIR__))).'/vendor/sensio/generator-bundle/Sensio/Bundle/GeneratorBundle/Resources/config/serializer')));
 
         return $this->services['jms_serializer.metadata_driver'] = new \JMS\Serializer\Metadata\Driver\DoctrineTypeDriver(new \Metadata\Driver\DriverChain(array(0 => new \JMS\Serializer\Metadata\Driver\YamlDriver($a), 1 => new \JMS\Serializer\Metadata\Driver\XmlDriver($a), 2 => new \JMS\Serializer\Metadata\Driver\PhpDriver($a), 3 => new \JMS\Serializer\Metadata\Driver\AnnotationDriver($this->get('annotation_reader')))), $this->get('doctrine'));
     }
@@ -3006,6 +3041,36 @@ class appDevDebugProjectContainer extends Container
     }
 
     /**
+     * Gets the 'ladybug.dumper' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Ladybug\Dumper A Ladybug\Dumper instance.
+     */
+    protected function getLadybug_DumperService()
+    {
+        $this->services['ladybug.dumper'] = $instance = new \Ladybug\Dumper();
+
+        $instance->setOptions(array('extra_helpers' => array(0 => 'RaulFraile\\Bundle\\LadybugBundle\\DataCollector\\LadybugDataCollector:log'), 'theme' => 'modern', 'expanded' => false, 'silenced' => false, 'array_max_nesting_level' => 9, 'object_max_nesting_level' => 3));
+
+        return $instance;
+    }
+
+    /**
+     * Gets the 'ladybug.event_listener.ladybug_config_listener' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \RaulFraile\Bundle\LadybugBundle\EventListener\LadybugConfigListener A RaulFraile\Bundle\LadybugBundle\EventListener\LadybugConfigListener instance.
+     */
+    protected function getLadybug_EventListener_LadybugConfigListenerService()
+    {
+        return $this->services['ladybug.event_listener.ladybug_config_listener'] = new \RaulFraile\Bundle\LadybugBundle\EventListener\LadybugConfigListener(array('extra_helpers' => array(0 => 'RaulFraile\\Bundle\\LadybugBundle\\DataCollector\\LadybugDataCollector:log'), 'theme' => 'modern', 'expanded' => false, 'silenced' => false, 'array_max_nesting_level' => 9, 'object_max_nesting_level' => 3));
+    }
+
+    /**
      * Gets the 'locale_listener' service.
      *
      * This service is shared.
@@ -3086,7 +3151,7 @@ class appDevDebugProjectContainer extends Container
      */
     protected function getMonolog_Handler_MainService()
     {
-        return $this->services['monolog.handler.main'] = new \Monolog\Handler\StreamHandler((dirname(dirname(__DIR__)).'/logs/dev.log'), 100, true);
+        return $this->services['monolog.handler.main'] = new \Monolog\Handler\StreamHandler((dirname(dirname(__DIR__)).'/logs/dev.log'), 100, true, NULL);
     }
 
     /**
@@ -3494,6 +3559,7 @@ class appDevDebugProjectContainer extends Container
         $instance->add(new \Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector($this->get('security.context', ContainerInterface::NULL_ON_INVALID_REFERENCE)));
         $instance->add(new \Symfony\Bundle\SwiftmailerBundle\DataCollector\MessageDataCollector($this));
         $instance->add($d);
+        $instance->add($this->get('data_collector.ladybug_data_collector'));
         $instance->add($this->get('data_collector.dump'));
 
         return $instance;
@@ -4856,6 +4922,7 @@ class appDevDebugProjectContainer extends Container
         $instance->addExtension(new \Doctrine\Bundle\DoctrineBundle\Twig\DoctrineExtension());
         $instance->addExtension(new \JMS\Serializer\Twig\SerializerExtension($this->get('jms_serializer')));
         $instance->addExtension($this->get('nelmio_api_doc.twig.extension.extra_markdown'));
+        $instance->addExtension(new \RaulFraile\Bundle\LadybugBundle\Twig\Extension\LadybugExtension($this->get('ladybug.dumper')));
         $instance->addExtension(new \Symfony\Bridge\Twig\Extension\DumpExtension($this->get('var_dumper.cloner')));
         $instance->addExtension(new \Symfony\Bundle\WebProfilerBundle\Twig\WebProfilerExtension());
         $instance->addGlobal('app', $this->get('templating.globals'));
@@ -4921,6 +4988,7 @@ class appDevDebugProjectContainer extends Container
         $instance->addPath((dirname(dirname(dirname(__DIR__))).'/vendor/doctrine/doctrine-bundle/Resources/views'), 'Doctrine');
         $instance->addPath((dirname(dirname(dirname(__DIR__))).'/src/ContactBundle/Resources/views'), 'Contact');
         $instance->addPath((dirname(dirname(dirname(__DIR__))).'/vendor/nelmio/api-doc-bundle/Nelmio/ApiDocBundle/Resources/views'), 'NelmioApiDoc');
+        $instance->addPath((dirname(dirname(dirname(__DIR__))).'/vendor/raulfraile/ladybug-bundle/RaulFraile/Bundle/LadybugBundle/Resources/views'), 'RaulFraileLadybug');
         $instance->addPath((dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/views'), 'Debug');
         $instance->addPath((dirname(dirname(dirname(__DIR__))).'/vendor/symfony/symfony/src/Symfony/Bundle/WebProfilerBundle/Resources/views'), 'WebProfiler');
         $instance->addPath((dirname(dirname(dirname(__DIR__))).'/vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/views'), 'SensioDistribution');
@@ -5061,7 +5129,7 @@ class appDevDebugProjectContainer extends Container
      */
     protected function getWebProfiler_Controller_ProfilerService()
     {
-        return $this->services['web_profiler.controller.profiler'] = new \Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController($this->get('router', ContainerInterface::NULL_ON_INVALID_REFERENCE), $this->get('profiler', ContainerInterface::NULL_ON_INVALID_REFERENCE), $this->get('twig'), array('data_collector.config' => array(0 => 'config', 1 => '@WebProfiler/Collector/config.html.twig'), 'data_collector.request' => array(0 => 'request', 1 => '@WebProfiler/Collector/request.html.twig'), 'data_collector.ajax' => array(0 => 'ajax', 1 => '@WebProfiler/Collector/ajax.html.twig'), 'data_collector.exception' => array(0 => 'exception', 1 => '@WebProfiler/Collector/exception.html.twig'), 'data_collector.events' => array(0 => 'events', 1 => '@WebProfiler/Collector/events.html.twig'), 'data_collector.logger' => array(0 => 'logger', 1 => '@WebProfiler/Collector/logger.html.twig'), 'data_collector.time' => array(0 => 'time', 1 => '@WebProfiler/Collector/time.html.twig'), 'data_collector.memory' => array(0 => 'memory', 1 => '@WebProfiler/Collector/memory.html.twig'), 'data_collector.router' => array(0 => 'router', 1 => '@WebProfiler/Collector/router.html.twig'), 'data_collector.form' => array(0 => 'form', 1 => '@WebProfiler/Collector/form.html.twig'), 'data_collector.security' => array(0 => 'security', 1 => '@Security/Collector/security.html.twig'), 'swiftmailer.data_collector' => array(0 => 'swiftmailer', 1 => '@Swiftmailer/Collector/swiftmailer.html.twig'), 'data_collector.doctrine' => array(0 => 'db', 1 => '@Doctrine/Collector/db.html.twig'), 'data_collector.dump' => array(0 => 'dump', 1 => '@Debug/Profiler/dump.html.twig')), 'bottom');
+        return $this->services['web_profiler.controller.profiler'] = new \Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController($this->get('router', ContainerInterface::NULL_ON_INVALID_REFERENCE), $this->get('profiler', ContainerInterface::NULL_ON_INVALID_REFERENCE), $this->get('twig'), array('data_collector.config' => array(0 => 'config', 1 => '@WebProfiler/Collector/config.html.twig'), 'data_collector.request' => array(0 => 'request', 1 => '@WebProfiler/Collector/request.html.twig'), 'data_collector.ajax' => array(0 => 'ajax', 1 => '@WebProfiler/Collector/ajax.html.twig'), 'data_collector.exception' => array(0 => 'exception', 1 => '@WebProfiler/Collector/exception.html.twig'), 'data_collector.events' => array(0 => 'events', 1 => '@WebProfiler/Collector/events.html.twig'), 'data_collector.logger' => array(0 => 'logger', 1 => '@WebProfiler/Collector/logger.html.twig'), 'data_collector.time' => array(0 => 'time', 1 => '@WebProfiler/Collector/time.html.twig'), 'data_collector.memory' => array(0 => 'memory', 1 => '@WebProfiler/Collector/memory.html.twig'), 'data_collector.router' => array(0 => 'router', 1 => '@WebProfiler/Collector/router.html.twig'), 'data_collector.form' => array(0 => 'form', 1 => '@WebProfiler/Collector/form.html.twig'), 'data_collector.security' => array(0 => 'security', 1 => '@Security/Collector/security.html.twig'), 'swiftmailer.data_collector' => array(0 => 'swiftmailer', 1 => '@Swiftmailer/Collector/swiftmailer.html.twig'), 'data_collector.doctrine' => array(0 => 'db', 1 => '@Doctrine/Collector/db.html.twig'), 'data_collector.ladybug_data_collector' => array(0 => 'ladybug', 1 => 'RaulFraileLadybugBundle:Collector:ladybug'), 'data_collector.dump' => array(0 => 'dump', 1 => '@Debug/Profiler/dump.html.twig')), 'bottom');
     }
 
     /**

@@ -45,13 +45,14 @@ class ContactHandler implements ContactHandlerInterface
 
 	public function put(ContactInterface $contact, array $parameters)
 	{
+		
 		return $this->processForm($contact, $parameters, 'PUT');
 	}
 
-	public function patch(ContactInterface $contact, array $parameters)
-	{
-		return $this->processForm($contact, $parameters, 'PATCH');
-	}
+	// public function patch(ContactInterface $contact, array $parameters)
+	// {
+	// 	return $this->processForm($contact, $parameters, 'PATCH');
+	// }
 
 	public function delete(ContactInterface $contact)
 	{
@@ -62,7 +63,7 @@ class ContactHandler implements ContactHandlerInterface
 	public function processForm(ContactInterface $contact, array $parameters, $method)
 	{
 		$form = $this->formFactory->create(new ContactType(), $contact, array('method'=> $method));
-		$form->submit($parameters, 'PATCH' !==$method);
+		$form->submit($parameters);
 		if($form->isValid()){
 			$contact = $form->getData();
 			$this->om->persist($contact);

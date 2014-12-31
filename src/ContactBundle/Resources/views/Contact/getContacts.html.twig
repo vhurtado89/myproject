@@ -1,27 +1,29 @@
-{% block content %}
-	<h1 class="firstname">{{ 'contact list'| trans({}, 'ContactBundle') }}</h1>
+{% extends 'ContactBundle::layout.html.twig' %}
 
-	<ul id="contact-list">
-		{% for contact in contacts %}
-			<li>
-				{{ contact.id }}
+{% block body %}
+	{% block content %}
+		<h1 class="firstname">{{ 'Contact List'| trans({}, 'ContactBundle') }}</h1>
 
-				<a href = "{{ path('api_1_get_contact', {'id': contact.id}) }}"> {{ contact.firstname }} {{ contact.lastname }}
-				</a>
+		<ul id="contact-list">
+			{% for contact in contacts %}
+				<li>
+					{{ contact.id }}
+					<a href = "{{ path('api_1_get_contact', {'id': contact.id}) }}"> {{ contact.firstname }} {{ contact.lastname }}
+					</a>
+					<a href= "{{ path('api_1_edit_contact' , {'id': contact.id}) }}">{{ 'edit' | trans({}, 'ContactBundle') }}
+					</a>
+					<a href= "{{ path('api_1_remove_contact' , {'id': contact.id}) }}">{{ 'delete' | trans({}, 'ContactBundle') }}
+					</a>
+				</li>
+			{% else %}
+				<li>
+					{{ 'Contact List is Empty'| trans({}, 'ContactBundle' ) }}
+				</li>
+			{% endfor %}
+		</ul>
+		<p>
+			<a href="{{ path('api_1_new_contact') }}">{{ 'Add new Contact'|trans({}, 'ContactBundle') }}</a>
+		</p>
+	{% endblock %}
 
-				<a href= "{{ path('api_1_edit_contact' , {'id': contact.id}) }}">{{ 'edit' | trans({}, 'ContactBundle') }}
-				</a>
-
-				<a href= "{{ path('api_1_remove_contact' , {'id': contact.id}) }}">{{ 'delete' | trans({}, 'ContactBundle') }}
-				</a>
-			</li>
-		{% else %}
-			<li>
-				{{ 'contact.list.empty'| trans({}, 'ContactBundle' ) }}
-			</li>
-		{% endfor %}
-	</ul>
-	<p>
-		<a href="{{ path('api_1_new_contact') }}">{{ 'Add new Contact'|trans({}, 'ContactBundle') }}</a>
-	</p>
 {% endblock %}

@@ -3003,7 +3003,7 @@ namespace
 {
 class Twig_Environment
 {
-const VERSION ='1.16.2';
+const VERSION ='1.16.3';
 protected $charset;
 protected $loader;
 protected $debug;
@@ -3621,8 +3621,11 @@ protected function writeCacheFile($file, $content)
 {
 $dir = dirname($file);
 if (!is_dir($dir)) {
-if (false === @mkdir($dir, 0777, true) && !is_dir($dir)) {
+if (false === @mkdir($dir, 0777, true)) {
+clearstatcache(false, $dir);
+if (!is_dir($dir)) {
 throw new RuntimeException(sprintf("Unable to create the cache directory (%s).", $dir));
+}
 }
 } elseif (!is_writable($dir)) {
 throw new RuntimeException(sprintf("Unable to write in the cache directory (%s).", $dir));
@@ -4057,7 +4060,11 @@ if ($item instanceof IteratorAggregate) {
 $item = $item->getIterator();
 }
 if ($start >= 0 && $length >= 0) {
+try {
 return iterator_to_array(new LimitIterator($item, $start, $length === null ? -1 : $length), $preserveKeys);
+} catch (OutOfBoundsException $exception) {
+return array();
+}
 }
 $item = iterator_to_array($item, $preserveKeys);
 }
@@ -4155,14 +4162,11 @@ return $array;
 function twig_in_filter($value, $compare)
 {
 if (is_array($compare)) {
-return in_array($value, $compare, is_object($value));
-} elseif (is_string($compare)) {
-if (!strlen($value)) {
-return empty($compare);
-}
-return false !== strpos($compare, (string) $value);
+return in_array($value, $compare, is_object($value) || is_resource($value));
+} elseif (is_string($compare) && (is_string($value) || is_int($value) || is_float($value))) {
+return''=== $value || false !== strpos($compare, (string) $value);
 } elseif ($compare instanceof Traversable) {
-return in_array($value, iterator_to_array($compare, false), is_object($value));
+return in_array($value, iterator_to_array($compare, false), is_object($value) || is_resource($value));
 }
 return false;
 }
@@ -4563,7 +4567,7 @@ abstract class Twig_Template implements Twig_TemplateInterface
 {
 protected static $cache = array();
 protected $parent;
-protected $parents;
+protected $parents = array();
 protected $env;
 protected $blocks;
 protected $traits;
@@ -4583,15 +4587,21 @@ public function getParent(array $context)
 if (null !== $this->parent) {
 return $this->parent;
 }
+try {
 $parent = $this->doGetParent($context);
 if (false === $parent) {
 return false;
-} elseif ($parent instanceof Twig_Template) {
-$name = $parent->getTemplateName();
-$this->parents[$name] = $parent;
-$parent = $name;
-} elseif (!isset($this->parents[$parent])) {
+}
+if ($parent instanceof Twig_Template) {
+return $this->parents[$parent->getTemplateName()] = $parent;
+}
+if (!isset($this->parents[$parent])) {
 $this->parents[$parent] = $this->env->loadTemplate($parent);
+}
+} catch (Twig_Error_Loader $e) {
+$e->setTemplateFile(null);
+$e->guess();
+throw $e;
 }
 return $this->parents[$parent];
 }
@@ -4881,14 +4891,14 @@ return'[unknown('.gettype($data).')]';
 }
 protected function normalizeException(Exception $e)
 {
-$data = array('class'=> get_class($e),'message'=> $e->getMessage(),'file'=> $e->getFile().':'.$e->getLine(),
+$data = array('class'=> get_class($e),'message'=> $e->getMessage(),'code'=> $e->getCode(),'file'=> $e->getFile().':'.$e->getLine(),
 );
 $trace = $e->getTrace();
 foreach ($trace as $frame) {
 if (isset($frame['file'])) {
 $data['trace'][] = $frame['file'].':'.$frame['line'];
 } else {
-$data['trace'][] = json_encode($frame);
+$data['trace'][] = $this->toJson($this->normalize($frame), true);
 }
 }
 if ($previous = $e->getPrevious()) {
@@ -4920,6 +4930,7 @@ const SIMPLE_FORMAT ="[%datetime%] %channel%.%level_name%: %message% %context% %
 protected $format;
 protected $allowInlineLineBreaks;
 protected $ignoreEmptyContextAndExtra;
+protected $includeStacktraces;
 public function __construct($format = null, $dateFormat = null, $allowInlineLineBreaks = false, $ignoreEmptyContextAndExtra = false)
 {
 $this->format = $format ?: static::SIMPLE_FORMAT;
@@ -4927,13 +4938,28 @@ $this->allowInlineLineBreaks = $allowInlineLineBreaks;
 $this->ignoreEmptyContextAndExtra = $ignoreEmptyContextAndExtra;
 parent::__construct($dateFormat);
 }
+public function includeStacktraces($include = true)
+{
+$this->includeStacktraces = $include;
+if ($this->includeStacktraces) {
+$this->allowInlineLineBreaks = true;
+}
+}
+public function allowInlineLineBreaks($allow = true)
+{
+$this->allowInlineLineBreaks = $allow;
+}
+public function ignoreEmptyContextAndExtra($ignore = true)
+{
+$this->ignoreEmptyContextAndExtra = $ignore;
+}
 public function format(array $record)
 {
 $vars = parent::format($record);
 $output = $this->format;
 foreach ($vars['extra'] as $var => $val) {
 if (false !== strpos($output,'%extra.'.$var.'%')) {
-$output = str_replace('%extra.'.$var.'%', $this->replaceNewlines($this->convertToString($val)), $output);
+$output = str_replace('%extra.'.$var.'%', $this->stringify($val), $output);
 unset($vars['extra'][$var]);
 }
 }
@@ -4949,7 +4975,7 @@ $output = str_replace('%extra%','', $output);
 }
 foreach ($vars as $var => $val) {
 if (false !== strpos($output,'%'.$var.'%')) {
-$output = str_replace('%'.$var.'%', $this->replaceNewlines($this->convertToString($val)), $output);
+$output = str_replace('%'.$var.'%', $this->stringify($val), $output);
 }
 }
 return $output;
@@ -4962,15 +4988,23 @@ $message .= $this->format($record);
 }
 return $message;
 }
+public function stringify($value)
+{
+return $this->replaceNewlines($this->convertToString($value));
+}
 protected function normalizeException(Exception $e)
 {
 $previousText ='';
 if ($previous = $e->getPrevious()) {
 do {
-$previousText .=', '.get_class($previous).': '.$previous->getMessage().' at '.$previous->getFile().':'.$previous->getLine();
+$previousText .=', '.get_class($previous).'(code: '.$previous->getCode().'): '.$previous->getMessage().' at '.$previous->getFile().':'.$previous->getLine();
 } while ($previous = $previous->getPrevious());
 }
-return'[object] ('.get_class($e).': '.$e->getMessage().' at '.$e->getFile().':'.$e->getLine().$previousText.')';
+$str ='[object] ('.get_class($e).'(code: '.$e->getCode().'): '.$e->getMessage().' at '.$e->getFile().':'.$e->getLine().$previousText.')';
+if ($this->includeStacktraces) {
+$str .="\n[stacktrace]\n".$e->getTraceAsString();
+}
+return $str;
 }
 protected function convertToString($data)
 {
@@ -5211,6 +5245,9 @@ $this->bufferSize = $bufferSize;
 $this->bubble = $bubble;
 $this->stopBuffering = $stopBuffering;
 $this->passthruLevel = $passthruLevel;
+if (!$this->handler instanceof HandlerInterface && !is_callable($this->handler)) {
+throw new \RuntimeException("The given handler (".json_encode($this->handler).") is not a callable nor a Monolog\Handler\HandlerInterface object");
+}
 }
 public function isHandling(array $record)
 {
@@ -5233,9 +5270,6 @@ if ($this->stopBuffering) {
 $this->buffering = false;
 }
 if (!$this->handler instanceof HandlerInterface) {
-if (!is_callable($this->handler)) {
-throw new \RuntimeException("The given handler (".json_encode($this->handler).") is not a callable nor a Monolog\Handler\HandlerInterface object");
-}
 $this->handler = call_user_func($this->handler, $record, $this);
 if (!$this->handler instanceof HandlerInterface) {
 throw new \RuntimeException("The factory callable should return a HandlerInterface");
@@ -5286,6 +5320,9 @@ public function __construct($handler, $minLevelOrList = Logger::DEBUG, $maxLevel
 $this->handler = $handler;
 $this->bubble = $bubble;
 $this->setAcceptedLevels($minLevelOrList, $maxLevel);
+if (!$this->handler instanceof HandlerInterface && !is_callable($this->handler)) {
+throw new \RuntimeException("The given handler (".json_encode($this->handler).") is not a callable nor a Monolog\Handler\HandlerInterface object");
+}
 }
 public function getAcceptedLevels()
 {
@@ -5314,10 +5351,6 @@ if (!$this->isHandling($record)) {
 return false;
 }
 if (!$this->handler instanceof HandlerInterface) {
-if (!is_callable($this->handler)) {
-throw new \RuntimeException("The given handler (". json_encode($this->handler)
-.") is not a callable nor a Monolog\\Handler\\HandlerInterface object");
-}
 $this->handler = call_user_func($this->handler, $record, $this);
 if (!$this->handler instanceof HandlerInterface) {
 throw new \RuntimeException("The factory callable should return a HandlerInterface");
@@ -5534,14 +5567,10 @@ public function addRecord($level, $message, array $context = array())
 if (!$this->handlers) {
 $this->pushHandler(new StreamHandler('php://stderr', static::DEBUG));
 }
-if (!static::$timezone) {
-static::$timezone = new \DateTimeZone(date_default_timezone_get() ?:'UTC');
-}
-$record = array('message'=> (string) $message,'context'=> $context,'level'=> $level,'level_name'=> static::getLevelName($level),'channel'=> $this->name,'datetime'=> \DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true)), static::$timezone)->setTimezone(static::$timezone),'extra'=> array(),
-);
+$levelName = static::getLevelName($level);
 $handlerKey = null;
 foreach ($this->handlers as $key => $handler) {
-if ($handler->isHandling($record)) {
+if ($handler->isHandling(array('level'=> $level))) {
 $handlerKey = $key;
 break;
 }
@@ -5549,6 +5578,11 @@ break;
 if (null === $handlerKey) {
 return false;
 }
+if (!static::$timezone) {
+static::$timezone = new \DateTimeZone(date_default_timezone_get() ?:'UTC');
+}
+$record = array('message'=> (string) $message,'context'=> $context,'level'=> $level,'level_name'=> $levelName,'channel'=> $this->name,'datetime'=> \DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true)), static::$timezone)->setTimezone(static::$timezone),'extra'=> array(),
+);
 foreach ($this->processors as $processor) {
 $record = call_user_func($processor, $record);
 }

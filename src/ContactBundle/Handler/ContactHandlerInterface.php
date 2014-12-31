@@ -9,8 +9,6 @@ interface ContactHandlerInterface
 	/**
 	*Get a Contact given the identifier
 	*
-	* @api
-	*
 	*@param mixed $id
 	*
 	*@return ContactInterface
@@ -54,7 +52,7 @@ interface ContactHandlerInterface
 	 *
 	 *@return ContactInterface
 	 */
-	 public function patch(ContactInterface $contact, array $parameters);
+	// public function patch(ContactInterface $contact, array $parameters);
 
 	  /**
 	 *Delete Contact 

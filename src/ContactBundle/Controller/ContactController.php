@@ -49,6 +49,7 @@ class ContactController extends FOSRestController
 	 */
     public function getContactAction($id) 
     {
+        // ladybug_dump($this->getRequest());
         $contact= $this->getOr404($id);
 
         return $contact;
@@ -77,6 +78,7 @@ class ContactController extends FOSRestController
     */
     public function getContactsAction(Request $request, ParamFetcherInterface $paramFetcher)
     {
+        //ladybug_dump($request);
     	$offset = $paramFetcher->get('offset');
     	$offset = null == $offset ? 0 : $offset;
     	$limit = $paramFetcher->get('limit');
@@ -149,7 +151,7 @@ class ContactController extends FOSRestController
     /**
     *Presents the form to use update a contact
     *
-    *@Annotations\View()
+    *@Annotations\View( templateVar = "contact")
     *
     *@param Request $request the request object
     *@param int     $id      the contact id
@@ -158,9 +160,10 @@ class ContactController extends FOSRestController
     */
     public function editContactAction(Request $request, $id)
     {
-       $contact = $this->getOr404($id);
-       $form= $this->createForm(new ContactType(), $contact);
-       return $form;
+        $contact = $this->getOr404($id);
+        $form= $this->createForm(new ContactType(), $contact);
+        //ladybug_dump($form);
+        return $form;
     }
 
     /**
@@ -169,7 +172,7 @@ class ContactController extends FOSRestController
     *@ApiDoc(
     *   resource = true,
     *   input = "ContactBundle\Form\PageType",
-    *   statusCodes = {
+    *   statusCode = {
     *       201= "Returned when contact is created",
     *       204= "Returned when successful",
     *       400= "Returned when the form has errors"
@@ -184,42 +187,41 @@ class ContactController extends FOSRestController
     *@param Request $request the request object
     *@param int     $id      the contact id
     *
-    *@return FormTypeInterface|View
+    *@return FormTypeInterface|Vi ew
     *
     *@throws NotFoundHttpException when page not exist
     */
 
     public function putContactAction(Request $request, $id)
     {
-        try{
-            if( !($contact = $this->container->get('contact_blog.contact.handler')->get($id)))
-            {
-                $statusCode = Codes::HTTP_CREATED;
-                $contact = $this->container->get('contact_blog.contact.handler')->post
-                (
-                    $request->request->all()
-                );
-            }else{
-                $statusCode = Codes::HTTP_NO_CONTENT;
-
-                $contact=$this->container->get('contact_blog.contact.handler')->put
-                (
-                    $contact,
-                    $request->request->all()
-                );
-            }
-
-            $routeOptions = array(
-                'id'=> $contact->getId(),
-                '_format'=> $request->get('_format')
+        //does not enter this function, returns to the get contact page before any of this can execute 
+        //gets stuck in the form somehow
+        // checks to see if contact with $id exist.
+        //if doesn't exist then it creates an new contact 
+        if(!($contact=$this->container->get('contact_blog.contact.handler')->get($id)))
+        {
+            $statusCode = Codes::HTTP_CREATED;
+            $contact=$this->container->get('contact_blog.contact.handler')->post
+            (
+                $request->request->all()
             );
 
-            return $this->routeRedirectView('api_1_get_contact', $routeOptions, $statusCode);
-
-        }catch (InvalidFormException $exception)
-        {
-            return $exception->getForm();
         }
+        // else it should get the contact and update it the handler
+        else{
+            $statusCode = Codes::HTTP_NO_CONTENT;
+            $contact=$this->container->get('contact_blog.contact.handler')->put
+            (
+                $contact,
+                $request->request->all()
+                );
+        }
+        $routeOptions = array(
+            'id'=>$contact.getId(),
+            '_format'=>$request->get('_format')
+            );
+        return $this->routeRedirectView('api_1_get_contact',$routeOptions,$statusCode);
+
     }
 
      /**
@@ -248,7 +250,7 @@ class ContactController extends FOSRestController
     }
 
     /**
-    *Removes the contacr
+    *Removes the contact
     *
     *@param Request $request the request object
     *@param int     $id      the contact id

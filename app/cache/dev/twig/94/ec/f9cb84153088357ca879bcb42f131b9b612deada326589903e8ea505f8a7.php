@@ -406,7 +406,7 @@ table.sf-toolbar-ajax-requests {
         echo "
 ";
         // line 384
-        if ((!(isset($context["floatable"]) ? $context["floatable"] : $this->getContext($context, "floatable")))) {
+        if ( !(isset($context["floatable"]) ? $context["floatable"] : $this->getContext($context, "floatable"))) {
             // line 385
             echo "    .sf-toolbarreset {
         position: static;
